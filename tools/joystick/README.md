@@ -44,7 +44,7 @@ The browser uses the WebGPU execution provider, with auxiliary CPU operations as
 
 ## Local model and public delivery
 
-Keep `signature.json` and `joystick.onnx` together in the directory specified by `JOYSTICK_MODEL_DIR`. The graph is 736,337,531 bytes. The Pages workflow downloads the pinned raw ONNX and signature, verifies SHA-256, then runs `tools/joystick/stage.py` to gzip and split it into 16 MiB same-origin fragments. The client downloads about 651 MiB on its first generation, inflates the fragments in order and reuses the compiled session. Five recorded samples remain available on devices without WebGPU or enough memory.
+Keep `signature.json` and `joystick.onnx` together in the directory specified by `JOYSTICK_MODEL_DIR`. The original FP32 graph is 736,337,531 bytes. Pages uses the mixed INT8/FP16 weight export. The workflow verifies the compressed graph and signature, then runs `tools/joystick/stage.py` to split the compressed stream into 16 MiB same-origin fragments. The client downloads about 224 MiB on its first generation, inflates the fragments in order and reuses the compiled session. Five recorded samples remain available on devices without WebGPU or enough memory.
 
 ## G1 visual assets
 

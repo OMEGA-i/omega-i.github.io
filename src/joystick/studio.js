@@ -166,7 +166,7 @@ export async function mountJoystick(host) {
         : t("G1 video replay · 3D unavailable", "G1 视频回放 · 3D 不可用");
       const command = sample.velocity.join(" / ") + " m/s";
       showStatus(t("Recorded command · ", "预录指令 · ") + command +
-        (live && !generate ? t(" · First download ≈ 651 MiB", " · 首次生成需下载约 651 MiB") : ""));
+        (live && !generate ? t(" · First download ≈ 224 MiB", " · 首次生成需下载约 224 MiB") : ""));
     } finally {
       if (request === generation) controls(true);
     }

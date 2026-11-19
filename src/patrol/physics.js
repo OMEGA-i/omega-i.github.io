@@ -157,6 +157,12 @@ export function startRun(course, route, capture, trackReference = false) {
       holding: held > 0 && route[stage]?.[3] > 0,
     };
   }
+  let impulseTicks = 0;
+  function pushLink(link, force) {
+    data.xfrc_applied.fill(0);
+    data.xfrc_applied.set(force, 6 * link);
+    impulseTicks = 6;
+  }
   async function step() {
     const [id, x, y, dwell] = route[stage];
     const q = data.qpos,
@@ -212,6 +218,7 @@ export function startRun(course, route, capture, trackReference = false) {
         data.ctrl[j] = cfg.default[j] + cfg.scale[j] * a[j];
       for (let i = 0; i < 4; i++) mj.mj_step(model, data);
       mj.mj_forward(model, data);
+      if (impulseTicks > 0 && --impulseTicks === 0) data.xfrc_applied.fill(0);
       alignReference(goals.subarray(DIM,2*DIM));
       observe(a);
       if(capture)capture({state:snapshot(),action:[...a],command:[tick,Math.hypot(goals[7],goals[8]),omega,stage]});
@@ -260,5 +267,5 @@ export function startRun(course, route, capture, trackReference = false) {
             : null,
     };
   }
-  return { step, state, dispose() { reference?.delete(); data.delete(); } };
+  return { step, state, pushLink, dispose() { reference?.delete(); data.delete(); } };
 }

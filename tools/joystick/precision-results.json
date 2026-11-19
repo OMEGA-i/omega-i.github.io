@@ -1,0 +1,613 @@
+{
+  "commands": [
+    [
+      0,
+      0
+    ],
+    [
+      0.8,
+      0
+    ],
+    [
+      0,
+      0.35
+    ],
+    [
+      -0.3,
+      0
+    ],
+    [
+      0.8,
+      0.25
+    ],
+    [
+      0.67,
+      -0.23
+    ],
+    [
+      0,
+      -0.35
+    ],
+    [
+      1.55,
+      0
+    ],
+    [
+      -0.65,
+      0.15
+    ],
+    [
+      0.35,
+      0.2
+    ]
+  ],
+  "models": {
+    "fp16": [
+      {
+        "cmd": [
+          0,
+          0
+        ],
+        "meanJointMM": 0.08083292294610901,
+        "maxJointMM": 0.6115854674450257,
+        "maxRootMM": 0.1968770993174148,
+        "endRootMM": 0.1968770993174148,
+        "maxRotationDeg": 0.13598511855766782
+      },
+      {
+        "cmd": [
+          0.8,
+          0
+        ],
+        "meanJointMM": 0.7348117623463919,
+        "maxJointMM": 6.400299949348646,
+        "maxRootMM": 0.3473204812901455,
+        "endRootMM": 0.2098016890394717,
+        "maxRotationDeg": 1.6859682263940263
+      },
+      {
+        "cmd": [
+          0,
+          0.35
+        ],
+        "meanJointMM": 1.1322202319205656,
+        "maxJointMM": 10.920731267292027,
+        "maxRootMM": 0.21652749094889512,
+        "endRootMM": 0.21652749094889512,
+        "maxRotationDeg": 2.436185776818685
+      },
+      {
+        "cmd": [
+          -0.3,
+          0
+        ],
+        "meanJointMM": 0.06351209650002577,
+        "maxJointMM": 0.24060949045463872,
+        "maxRootMM": 0.1778976444375884,
+        "endRootMM": 0.1778976444375884,
+        "maxRotationDeg": 0.04354674662554424
+      },
+      {
+        "cmd": [
+          0.8,
+          0.25
+        ],
+        "meanJointMM": 0.11029863329281767,
+        "maxJointMM": 0.40973596315030114,
+        "maxRootMM": 0.35163969197433265,
+        "endRootMM": 0.35163969197433265,
+        "maxRotationDeg": 0.08867414132543261
+      },
+      {
+        "cmd": [
+          0.67,
+          -0.23
+        ],
+        "meanJointMM": 0.13353288864224314,
+        "maxJointMM": 0.34624907103441216,
+        "maxRootMM": 0.23388955267256997,
+        "endRootMM": 0.13883386854428834,
+        "maxRotationDeg": 0.05851225201058216
+      },
+      {
+        "cmd": [
+          0,
+          -0.35
+        ],
+        "meanJointMM": 0.11526715448541741,
+        "maxJointMM": 0.7951746689599017,
+        "maxRootMM": 0.18865902119262393,
+        "endRootMM": 0.08791507804020324,
+        "maxRotationDeg": 0.09489122824499999
+      },
+      {
+        "cmd": [
+          1.55,
+          0
+        ],
+        "meanJointMM": 0.9304186528594396,
+        "maxJointMM": 7.997370575987907,
+        "maxRootMM": 0.4447207594490676,
+        "endRootMM": 0.4447207594490676,
+        "maxRotationDeg": 2.0781031428720604
+      },
+      {
+        "cmd": [
+          -0.65,
+          0.15
+        ],
+        "meanJointMM": 0.09775564350641577,
+        "maxJointMM": 0.22084301577683257,
+        "maxRootMM": 0.18865151614156803,
+        "endRootMM": 0.18865151614156803,
+        "maxRotationDeg": 0.05394265536690582
+      },
+      {
+        "cmd": [
+          0.35,
+          0.2
+        ],
+        "meanJointMM": 0.05546432987835422,
+        "maxJointMM": 0.23707323929224253,
+        "maxRootMM": 0.20818812000191958,
+        "endRootMM": 0.20818812000191958,
+        "maxRotationDeg": 0.0821812297242887
+      }
+    ],
+    "int8": [
+      {
+        "cmd": [
+          0,
+          0
+        ],
+        "meanJointMM": 1.4988648812488714,
+        "maxJointMM": 8.459178198820789,
+        "maxRootMM": 1.9766337708297856,
+        "endRootMM": 0.7375411910120733,
+        "maxRotationDeg": 1.2665184961849028
+      },
+      {
+        "cmd": [
+          0.8,
+          0
+        ],
+        "meanJointMM": 5.919006890507269,
+        "maxJointMM": 23.95824254081366,
+        "maxRootMM": 7.098617923505024,
+        "endRootMM": 1.0173443546643912,
+        "maxRotationDeg": 5.753864402140587
+      },
+      {
+        "cmd": [
+          0,
+          0.35
+        ],
+        "meanJointMM": 3.9088686299309052,
+        "maxJointMM": 18.762878234570007,
+        "maxRootMM": 5.065368294594093,
+        "endRootMM": 2.6238971261774187,
+        "maxRotationDeg": 6.584191318406432
+      },
+      {
+        "cmd": [
+          -0.3,
+          0
+        ],
+        "meanJointMM": 3.3334802728672286,
+        "maxJointMM": 14.817448015774497,
+        "maxRootMM": 5.222143741478317,
+        "endRootMM": 2.9184200460554277,
+        "maxRotationDeg": 2.5581822739564397
+      },
+      {
+        "cmd": [
+          0.8,
+          0.25
+        ],
+        "meanJointMM": 5.7263773342220325,
+        "maxJointMM": 21.214423359194388,
+        "maxRootMM": 9.107267990223518,
+        "endRootMM": 3.5132054365853795,
+        "maxRotationDeg": 4.165981988783644
+      },
+      {
+        "cmd": [
+          0.67,
+          -0.23
+        ],
+        "meanJointMM": 4.196971712120307,
+        "maxJointMM": 15.163018399067452,
+        "maxRootMM": 3.1201292141654067,
+        "endRootMM": 1.488399608921801,
+        "maxRotationDeg": 5.078877285069832
+      },
+      {
+        "cmd": [
+          0,
+          -0.35
+        ],
+        "meanJointMM": 3.4771272947483487,
+        "maxJointMM": 18.97793068979355,
+        "maxRootMM": 2.771622101499162,
+        "endRootMM": 2.4202647683520926,
+        "maxRotationDeg": 4.467505806400083
+      },
+      {
+        "cmd": [
+          1.55,
+          0
+        ],
+        "meanJointMM": 9.535272827026812,
+        "maxJointMM": 42.87068738295081,
+        "maxRootMM": 10.593732088575972,
+        "endRootMM": 4.233414098497189,
+        "maxRotationDeg": 8.743016593200837
+      },
+      {
+        "cmd": [
+          -0.65,
+          0.15
+        ],
+        "meanJointMM": 4.890304671830795,
+        "maxJointMM": 21.93637602552613,
+        "maxRootMM": 5.361794890450139,
+        "endRootMM": 1.667726208401803,
+        "maxRotationDeg": 4.655610469706375
+      },
+      {
+        "cmd": [
+          0.35,
+          0.2
+        ],
+        "meanJointMM": 4.189103117115987,
+        "maxJointMM": 10.809045564266013,
+        "maxRootMM": 5.910380893095977,
+        "endRootMM": 3.2338952363553966,
+        "maxRotationDeg": 3.08316465259269
+      }
+    ],
+    "mixed": [
+      {
+        "cmd": [
+          0,
+          0
+        ],
+        "meanJointMM": 0.6696837384825116,
+        "maxJointMM": 7.055224731981126,
+        "maxRootMM": 0.1968770993174148,
+        "endRootMM": 0.1968770993174148,
+        "maxRotationDeg": 1.4650991624772223
+      },
+      {
+        "cmd": [
+          0.8,
+          0
+        ],
+        "meanJointMM": 1.4045259552543055,
+        "maxJointMM": 13.43555290409453,
+        "maxRootMM": 0.3473204812901455,
+        "endRootMM": 0.2098016890394717,
+        "maxRotationDeg": 3.868171857115855
+      },
+      {
+        "cmd": [
+          0,
+          0.35
+        ],
+        "meanJointMM": 1.5827256496281845,
+        "maxJointMM": 19.130855478314718,
+        "maxRootMM": 0.21652749094889512,
+        "endRootMM": 0.21652749094889512,
+        "maxRotationDeg": 3.1666493685348955
+      },
+      {
+        "cmd": [
+          -0.3,
+          0
+        ],
+        "meanJointMM": 1.3519507046501593,
+        "maxJointMM": 11.314932213334265,
+        "maxRootMM": 0.1778976444375884,
+        "endRootMM": 0.1778976444375884,
+        "maxRotationDeg": 2.4787568898385564
+      },
+      {
+        "cmd": [
+          0.8,
+          0.25
+        ],
+        "meanJointMM": 1.0181618005258213,
+        "maxJointMM": 9.685154719838737,
+        "maxRootMM": 0.35163969197433265,
+        "endRootMM": 0.35163969197433265,
+        "maxRotationDeg": 2.3538313781935454
+      },
+      {
+        "cmd": [
+          0.67,
+          -0.23
+        ],
+        "meanJointMM": 0.8917778302364713,
+        "maxJointMM": 8.538830570126937,
+        "maxRootMM": 0.23388955267256997,
+        "endRootMM": 0.13883386854428834,
+        "maxRotationDeg": 2.31971669892406
+      },
+      {
+        "cmd": [
+          0,
+          -0.35
+        ],
+        "meanJointMM": 0.5392492800844143,
+        "maxJointMM": 3.4115533443327277,
+        "maxRootMM": 0.18865902119262393,
+        "endRootMM": 0.08791507804020324,
+        "maxRotationDeg": 1.8254873896435715
+      },
+      {
+        "cmd": [
+          1.55,
+          0
+        ],
+        "meanJointMM": 2.1068405350081916,
+        "maxJointMM": 23.031764668862184,
+        "maxRootMM": 0.4447207594490676,
+        "endRootMM": 0.4447207594490676,
+        "maxRotationDeg": 4.727127142656941
+      },
+      {
+        "cmd": [
+          -0.65,
+          0.15
+        ],
+        "meanJointMM": 1.5156358903543297,
+        "maxJointMM": 11.896359308393205,
+        "maxRootMM": 0.18865151614156803,
+        "endRootMM": 0.18865151614156803,
+        "maxRotationDeg": 2.756272477063418
+      },
+      {
+        "cmd": [
+          0.35,
+          0.2
+        ],
+        "meanJointMM": 1.7852029139880723,
+        "maxJointMM": 11.731211512657813,
+        "maxRootMM": 0.20818812000191958,
+        "endRootMM": 0.20818812000191958,
+        "maxRotationDeg": 2.365000218331097
+      }
+    ],
+    "int10": [
+      {
+        "cmd": [
+          0,
+          0
+        ],
+        "meanJointMM": 0.3520099747291662,
+        "maxJointMM": 1.719758159859493,
+        "maxRootMM": 0.21773711152981642,
+        "endRootMM": 0.15279982513084933,
+        "maxRotationDeg": 0.4773596820905591
+      },
+      {
+        "cmd": [
+          0.8,
+          0
+        ],
+        "meanJointMM": 2.5032397162148734,
+        "maxJointMM": 11.889616703967626,
+        "maxRootMM": 1.9379477288524274,
+        "endRootMM": 1.8530740824388876,
+        "maxRotationDeg": 2.837390172829101
+      },
+      {
+        "cmd": [
+          0,
+          0.35
+        ],
+        "meanJointMM": 2.8397665665607508,
+        "maxJointMM": 20.973165642312743,
+        "maxRootMM": 1.064760158215619,
+        "endRootMM": 0.5686928174991885,
+        "maxRotationDeg": 4.775538488192615
+      },
+      {
+        "cmd": [
+          -0.3,
+          0
+        ],
+        "meanJointMM": 1.6210979692638137,
+        "maxJointMM": 9.063015904823665,
+        "maxRootMM": 1.2312560376392818,
+        "endRootMM": 0.7966153511972678,
+        "maxRotationDeg": 2.368036322177031
+      },
+      {
+        "cmd": [
+          0.8,
+          0.25
+        ],
+        "meanJointMM": 1.6459286351371556,
+        "maxJointMM": 9.905544872299867,
+        "maxRootMM": 1.581894232926891,
+        "endRootMM": 1.581894232926891,
+        "maxRotationDeg": 3.2055645766981304
+      },
+      {
+        "cmd": [
+          0.67,
+          -0.23
+        ],
+        "meanJointMM": 1.750934145548963,
+        "maxJointMM": 7.955072524821001,
+        "maxRootMM": 2.573401693095207,
+        "endRootMM": 2.573401693095207,
+        "maxRotationDeg": 2.367050836769757
+      },
+      {
+        "cmd": [
+          0,
+          -0.35
+        ],
+        "meanJointMM": 0.6770615117412115,
+        "maxJointMM": 3.579520979967854,
+        "maxRootMM": 0.916763827079431,
+        "endRootMM": 0.916763827079431,
+        "maxRotationDeg": 0.5691745109683376
+      },
+      {
+        "cmd": [
+          1.55,
+          0
+        ],
+        "meanJointMM": 3.746438433200048,
+        "maxJointMM": 22.01840406614996,
+        "maxRootMM": 4.901836897266004,
+        "endRootMM": 4.901836897266004,
+        "maxRotationDeg": 7.033607076598278
+      },
+      {
+        "cmd": [
+          -0.65,
+          0.15
+        ],
+        "meanJointMM": 2.8253387709228335,
+        "maxJointMM": 27.39079336837168,
+        "maxRootMM": 1.6484476284657195,
+        "endRootMM": 1.6327466434482993,
+        "maxRotationDeg": 5.896130529061652
+      },
+      {
+        "cmd": [
+          0.35,
+          0.2
+        ],
+        "meanJointMM": 0.9875472877378735,
+        "maxJointMM": 5.1726227458123955,
+        "maxRootMM": 0.8311489519569932,
+        "endRootMM": 0.6712637543890807,
+        "maxRotationDeg": 1.383160925255545
+      }
+    ],
+    "int12": [
+      {
+        "cmd": [
+          0,
+          0
+        ],
+        "meanJointMM": 0.1040775309663786,
+        "maxJointMM": 0.40880136299172704,
+        "maxRootMM": 0.08886988045740009,
+        "endRootMM": 0.07328021176421262,
+        "maxRotationDeg": 0.16827389499890216
+      },
+      {
+        "cmd": [
+          0.8,
+          0
+        ],
+        "meanJointMM": 0.1357878647527335,
+        "maxJointMM": 0.5198997965090992,
+        "maxRootMM": 0.3121761286740784,
+        "endRootMM": 0.3121761286740784,
+        "maxRotationDeg": 0.20257236602560882
+      },
+      {
+        "cmd": [
+          0,
+          0.35
+        ],
+        "meanJointMM": 1.6193091876167771,
+        "maxJointMM": 10.107412367208653,
+        "maxRootMM": 0.32574889003610447,
+        "endRootMM": 0.1936405226330129,
+        "maxRotationDeg": 1.9146350994429513
+      },
+      {
+        "cmd": [
+          -0.3,
+          0
+        ],
+        "meanJointMM": 1.5241459399636723,
+        "maxJointMM": 7.059800162833122,
+        "maxRootMM": 0.2921192464972084,
+        "endRootMM": 0.18779955753059543,
+        "maxRotationDeg": 2.3688306588458596
+      },
+      {
+        "cmd": [
+          0.8,
+          0.25
+        ],
+        "meanJointMM": 1.5256061075929572,
+        "maxJointMM": 16.57749578140057,
+        "maxRootMM": 0.2786230006188019,
+        "endRootMM": 0.19067871489199134,
+        "maxRotationDeg": 2.9657637982193465
+      },
+      {
+        "cmd": [
+          0.67,
+          -0.23
+        ],
+        "meanJointMM": 0.13858559260467024,
+        "maxJointMM": 0.5402187002127894,
+        "maxRootMM": 0.34745979498003976,
+        "endRootMM": 0.31681970210812527,
+        "maxRotationDeg": 0.15822500618156446
+      },
+      {
+        "cmd": [
+          0,
+          -0.35
+        ],
+        "meanJointMM": 0.1444497784279608,
+        "maxJointMM": 0.7773707458387644,
+        "maxRootMM": 0.22566713717918094,
+        "endRootMM": 0.12746179786572598,
+        "maxRotationDeg": 0.14209702038249977
+      },
+      {
+        "cmd": [
+          1.55,
+          0
+        ],
+        "meanJointMM": 0.28226460846952145,
+        "maxJointMM": 0.8177258259985857,
+        "maxRootMM": 0.7407111002356366,
+        "endRootMM": 0.7407111002356366,
+        "maxRotationDeg": 0.2955276714198352
+      },
+      {
+        "cmd": [
+          -0.65,
+          0.15
+        ],
+        "meanJointMM": 0.25441410965153083,
+        "maxJointMM": 0.6800309923619539,
+        "maxRootMM": 0.4487809976338129,
+        "endRootMM": 0.1550670135829031,
+        "maxRotationDeg": 0.12776591225905143
+      },
+      {
+        "cmd": [
+          0.35,
+          0.2
+        ],
+        "meanJointMM": 0.8555377870192895,
+        "maxJointMM": 7.671936346265445,
+        "maxRootMM": 0.18751509700441557,
+        "endRootMM": 0.07515037195471871,
+        "maxRotationDeg": 1.960142450214399
+      }
+    ]
+  },
+  "browser": "157.0.8103.79",
+  "baseline": "FP32 WebGPU, g1-webgpu-v1, same device and command order",
+  "frames": 60,
+  "joints": 30,
+  "seed": 7,
+  "selected": "mixed",
+  "method": "Weight-only quantization; all models use FP32 arithmetic. Mixed uses INT8 with 32-weight scales in _transformer_model and FP16 storage for remaining large initializers."
+}

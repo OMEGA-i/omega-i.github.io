@@ -38,6 +38,7 @@ export async function makeEye(canvas, signal, cfg, tracking = false) {
   const racks=cfg.racks.map(([,x,y,hx,hy])=>new THREE.Box3(new THREE.Vector3(x-hx-.12,y-hy-.12,0),new THREE.Vector3(x+hx+.12,y+hy+.12,1.92)));
   let width = 0,
     height = 0;
+  let azimuth = 0;
   function draw(s,angle,overlay=true) {
     const w = canvas.clientWidth,
       h = canvas.clientHeight;
@@ -68,7 +69,7 @@ export async function makeEye(canvas, signal, cfg, tracking = false) {
       }
       target.set(s.xy[0],s.xy[1],targetHeight);
       if(angle==="poster")offset.set(3.1,1.75,.67);
-      else offset.copy(initialOffset).applyAxisAngle(vertical,s.yaw);
+      else offset.copy(initialOffset).applyAxisAngle(vertical,s.yaw + azimuth);
       for(let lift=0;lift<14;lift++){
         ray.set(target,offset.clone().normalize());
         if(!racks.some(box=>{const hit=ray.intersectBox(box,new THREE.Vector3());return hit&&hit.distanceTo(target)<offset.length();}))break;
@@ -87,6 +88,28 @@ export async function makeEye(canvas, signal, cfg, tracking = false) {
   }
   return {
     draw,
+    orbit(delta) { azimuth += delta; },
+    pickLink(clientX,clientY) {
+      const bounds = canvas.getBoundingClientRect();
+      const pointer = new THREE.Vector2(2*(clientX-bounds.left)/bounds.width-1,1-2*(clientY-bounds.top)/bounds.height);
+      const picker = new THREE.Raycaster();
+      picker.setFromCamera(pointer,camera);
+      let node = picker.intersectObject(model,true)[0]?.object;
+      while(node) {
+        const link = links.find(([object])=>object===node);
+        if(link) return link[1];
+        node=node.parent;
+      }
+      return null;
+    },
+    horizontalForce(dx,dy) {
+      const right=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0);
+      right.z=0;right.normalize();
+      const forward=new THREE.Vector3().crossVectors(vertical,right);
+      const force=right.multiplyScalar(dx).addScaledVector(forward,-dy).multiplyScalar(1.5);
+      force.clampLength(0,110);
+      return force.toArray();
+    },
     dispose() {
       disposeStage();
 

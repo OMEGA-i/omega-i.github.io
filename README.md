@@ -7,10 +7,10 @@ Bilingual Astro site for Joystick, SeMoCo, SuperMimicKit and PlayGround. Use Nod
 Use the two attachments named in [the release lock](tools/patrol/release-lock.json). For a local rehearsal put them in the directory named by PATROL_ARCHIVES.
 
 ```sh
-PUBLIC_JOYSTICK_MODEL_MANIFEST=/models/joystick/signature.json PUBLIC_G1_PATROL_MANIFEST=/models/g1/patrol.json PUBLIC_A3_PATROL_MANIFEST=/models/a3/patrol.json npm run build
-gh release download g1-webgpu-v1 -R OMEGA-i/Joystick -p signature.json -p joystick.onnx -D dist/models/joystick
-(cd dist/models/joystick && shasum -a 256 -c ../../../tools/joystick/browser.sha256)
-python3 tools/joystick/stage.py dist/models/joystick
+PUBLIC_JOYSTICK_MODEL_MANIFEST=/models/joystick-mixed-v1/signature.json PUBLIC_G1_PATROL_MANIFEST=/models/g1/patrol.json PUBLIC_A3_PATROL_MANIFEST=/models/a3/patrol.json npm run build
+gh release download g1-webgpu-mixed-v1 -R OMEGA-i/Joystick -p signature.json -p joystick.onnx.gz -D dist/models/joystick-mixed-v1
+(cd dist/models/joystick-mixed-v1 && shasum -a 256 -c ../../../tools/joystick/browser.sha256)
+python3 tools/joystick/stage.py dist/models/joystick-mixed-v1
 python3 tools/patrol/release.py stage "$PATROL_ARCHIVES" dist
 npm run preview
 ```

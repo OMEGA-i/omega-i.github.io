@@ -8,15 +8,17 @@ const steps=[[45,30,45,50],[15,25,30,40],[20,40,35,50],[20,15,35,35]];
 const previews=root+"/releases/download/demo-preview-20261024/";
 ---
 <section class="tracker" data-tracker data-en={en} data-g1={import.meta.env.PUBLIC_G1_PATROL_MANIFEST || __G1_PATROL_DEV__} data-a3={import.meta.env.PUBLIC_A3_PATROL_MANIFEST || __A3_PATROL_DEV__}>
-  <div class="stage"><video controls playsinline preload="metadata" poster="/previews/supermimickit-front.webp"></video><canvas hidden></canvas></div>
+  <div class="stage"><button class="fullscreen" data-full aria-label={t("Fullscreen","全屏")}>⛶</button><video controls playsinline preload="metadata" poster="/previews/supermimickit-front.webp"></video><canvas hidden tabindex="0" aria-label={t("Interactive robot. Drag the background to orbit, Space to pause.","交互机器人。拖动背景旋转视角，空格暂停。")}></canvas></div>
   <div class="controls"><ModelSwitch control="tracker-body" label={t("Robot","本体")}/>
     <label>{t("Motion","动作")} <select><option value="turn">{t("Step and turn","迈步转向")}</option><option value="walk">{t("Walk and stop","直行停步")}</option></select></label>
+    <button data-inspect>{t("Explore in 3D","自由观察")}</button>
     <button data-run>{t("Run tracker","现场试跑")}</button>
     <label><input type="checkbox" checked data-ghost/>{t("Reference overlay","叠加参考姿态")}</label>
+    <button data-push hidden>{t("Push sideways","侧向推一下")} <span data-force></span></button>
   </div>
-  <div class="transport" hidden><button data-play>{t("Play","播放")}</button><input type="range" min="0" max="0" value="0" aria-label={t("Frame","逐帧查看")}/><output></output></div>
+  <div class="transport" hidden><button data-reset>{t("Reset","复位")}</button><button data-play>{t("Play","播放")}</button><input type="range" min="0" max="0" value="0" aria-label={t("Frame","逐帧查看")}/><output></output></div>
   <p role="status"></p>
-  <p>{t("Solid mesh shows physics. Blue shows the target pose aligned at the pelvis in the horizontal plane. Both trackers follow a stride derived from the Unitree walking cycle.", "实色网格是物理执行，蓝色轮廓是按骨盆水平位置对齐的参考姿态。两台机器人使用源自宇树步态周期的参考动作。")}</p>
+  <p>{t("Drag the background to orbit. During a live run, drag and release a robot link to push it. Solid mesh shows physics. Blue shows the target pose aligned at the pelvis in the horizontal plane. Both trackers follow a stride derived from the Unitree walking cycle.", "拖动背景旋转视角。试跑中拖动机器人再松手，可以观察它如何恢复平衡。实色网格是物理执行，蓝色轮廓是按骨盆水平位置对齐的参考姿态。两台机器人使用源自宇树步态周期的参考动作。")}</p>
 </section>
 <section class="weights"><h2>{t("Models and code","模型与代码")}</h2>
 <p><a href={root}>GitHub ↗</a> · <a href="https://github.com/OMEGA-i/omega-i.github.io/releases/tag/showroom-demos-v1">{t("Download motion samples","下载跟踪样例")}</a> · <a href={courses+"inference-runtime.zip"}>{t("Course inference runtime","课程模型推理环境")}</a> · <a href={root+"/blob/main/pretrained/courses-20261107/README.md"}>{t("Validation checkpoints","验证集选出的 checkpoint")}</a></p>
@@ -28,4 +30,12 @@ document.querySelectorAll("[data-tracker]").forEach(mount);
 </script>
 <style>
 .tracker{margin:2rem 0}.stage{background:var(--tint);aspect-ratio:16/9;overflow:hidden;border-radius:12px}.stage :is(video,canvas){width:100%;height:100%;display:block}.tracker [hidden]{display:none!important}.controls,.transport{display:flex;align-items:center;flex-wrap:wrap;gap:1rem;margin:1rem 0}.controls button,.transport button,.controls select{font:inherit;padding:.5rem .8rem;border-radius:7px;border:1px solid var(--rule);background:var(--paper);color:var(--fg)}.controls button{background:var(--accent);color:var(--bg);cursor:pointer}.transport input{flex:1}.tracker p,.weights p{color:var(--muted);margin:.55rem 0}.weights table{border-collapse:collapse;width:100%;margin:1rem 0}.weights td,.weights th{border-bottom:1px solid var(--rule);padding:.6rem;text-align:left}.weights td a{display:inline-block;margin-right:.8rem}.weights a{color:var(--accent)}
+.stage canvas{touch-action:none;cursor:grab}.stage canvas:active{cursor:grabbing}.controls [data-inspect],.controls [data-push]{background:var(--paper);color:var(--fg)}
+
+.tracker{border:1px solid var(--rule);border-radius:16px;overflow:hidden;background:var(--paper)}
+.stage{position:relative;border-radius:0}.fullscreen{position:absolute;z-index:1;right:12px;top:12px;border:0;border-radius:50%;width:40px;height:40px;background:#202632dc;color:white;font-size:23px;cursor:pointer}
+.controls,.transport{margin:0;padding:12px clamp(12px,2vw,24px);border-bottom:1px solid var(--rule)}
+.controls{background:var(--tint);gap:clamp(8px,1.3vw,22px)}.controls select{max-width:100%}.controls :is(button,select){min-height:38px}.controls [data-run]{font-weight:650}
+.tracker p{padding-inline:clamp(12px,2vw,24px)}.tracker [role=status]{font-weight:600;color:var(--fg)}.tracker p:last-child{padding-bottom:.75rem;font-size:.9rem}
+.tracker:fullscreen{overflow:auto;border-radius:0}.tracker:fullscreen .stage{height:70vh;aspect-ratio:auto}.tracker:fullscreen video{object-fit:contain}
 </style>
