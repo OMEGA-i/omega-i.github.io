@@ -67,7 +67,8 @@ export async function makeEye(canvas, signal, cfg, tracking = false) {
         }
       }
       target.set(s.xy[0],s.xy[1],targetHeight);
-      offset.copy(initialOffset).applyAxisAngle(vertical,s.yaw);
+      if(angle==="poster")offset.set(3.1,1.75,.67);
+      else offset.copy(initialOffset).applyAxisAngle(vertical,s.yaw);
       for(let lift=0;lift<14;lift++){
         ray.set(target,offset.clone().normalize());
         if(!racks.some(box=>{const hit=ray.intersectBox(box,new THREE.Vector3());return hit&&hit.distanceTo(target)<offset.length();}))break;
