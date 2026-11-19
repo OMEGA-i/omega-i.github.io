@@ -1,6 +1,6 @@
 # G1 browser demo
 
-The local Astro dev server automatically finds the validated model in the directory specified by `JOYSTICK_MODEL_DIR`. Open either language's Joystick project page, set the command and click **Generate motion**. The model loads on the first click. GitHub Pages builds use the five compact recorded commands by default. The static output contains no checkpoint or ONNX model.
+The local Astro dev server automatically finds the validated model in the directory specified by `JOYSTICK_MODEL_DIR`. Open either language's Joystick project page, set the command and click **Generate motion**. The model loads on the first click. GitHub Pages serves five recorded commands and stages the verified G1 graph from the Joystick release for on-device generation.
 
 ## Reproduce the reference
 
@@ -44,7 +44,7 @@ The browser uses the WebGPU execution provider, with auxiliary CPU operations as
 
 ## Local model and public delivery
 
-Keep `signature.json` and `joystick.onnx` together in the directory specified by `JOYSTICK_MODEL_DIR`. The validated graph is approximately 703 MiB; individual GitHub source blobs cannot host it. To enable live generation on a public build after model/primitive redistribution terms are confirmed, host these two files on HTTPS static storage with CORS for the Pages origin and set `PUBLIC_JOYSTICK_MODEL_MANIFEST` to the absolute URL of `signature.json` when building. Use an uncompressed response with `Content-Length` for incremental progress. The visitor downloads the model only after clicking Generate. Keep the public model host and revision pinned to the validation record. Five small bundled samples remain available when WebGPU, memory or model loading is unavailable.
+Keep `signature.json` and `joystick.onnx` together in the directory specified by `JOYSTICK_MODEL_DIR`. The graph is 736,337,531 bytes. The Pages workflow downloads the pinned raw ONNX and signature, verifies SHA-256, then runs `tools/joystick/stage.py` to gzip and split it into 16 MiB same-origin fragments. The client downloads about 651 MiB on its first generation, inflates the fragments in order and reuses the compiled session. Five recorded samples remain available on devices without WebGPU or enough memory.
 
 ## G1 visual assets
 

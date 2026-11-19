@@ -22,3 +22,18 @@ python tools/patrol/render.py "$CAPTURE/$body" "$INPUTS/$body/robot.xml" "$RENDE
 ```
 
 To produce new attachments and update the version lock, run `python tools/patrol/release.py package "$BUNDLES" "$ARCHIVES" "$INPUTS/unitree/LICENSE"`. Stage and preview as described in the site README.
+
+
+## Showroom recordings
+
+Run the dev server with the released central-showroom bundles. From the site root render the independent camera streams and the short tracking studies:
+
+```sh
+for body in g1 a3; do
+  node tools/patrol/film_showroom.mjs http://localhost:4321 "$body" "public/inspection/$body"
+done
+node tools/tracker/film.mjs http://localhost:4321
+sh tools/mobile-film.sh
+```
+
+The camera encoder verifies every pelvis XY sample against the recorded route. Tracking clips retain measured and reference link transforms for frame inspection. The two camera films share the 25 Hz record clock; mobile transcodes preserve frame count.
