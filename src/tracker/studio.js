@@ -1,11 +1,11 @@
 export function mount(root){
-  const get=q=>root.querySelector(q),video=get('video'),canvas=get('canvas'),body=get('omega-model-switch'),action=get('select'),ghost=get('[data-ghost]'),run=get('[data-run]'),play=get('[data-play]'),range=get('[type=range]'),transport=get('.transport'),status=get('[role=status]');
+  const get=q=>root.querySelector(q),video=get('video'),body=get('omega-model-switch'),action=get('select'),ghost=get('[data-ghost]'),run=get('[data-run]'),play=get('[data-play]'),range=get('[type=range]'),transport=get('.transport'),status=get('[role=status]');
   const en=root.dataset.en==="true",t=(a,b)=>en?a:b;
-  let session,view,frames=[],raf,started,index=0;
+  let canvas=get("canvas"),session,view,frames=[],raf,started,index=0;
   function stop(){cancelAnimationFrame(raf);raf=0;play.textContent=t("Play","播放");}
   function draw(i){index=i;range.value=i;view.draw(frames[i],"chase",ghost.checked);get('output').textContent=frames[i].time.toFixed(2)+" s";}
   function animate(now){
-    draw(Math.min(frames.length-1,Math.floor((now-started)/40)));
+    draw(Math.max(0,Math.min(frames.length-1,Math.floor((now-started)/40))));
     if(index===frames.length-1)stop();else raf=requestAnimationFrame(animate);
   }
   function toggle(){if(raf){stop();return;}if(index===frames.length-1)index=0;started=performance.now()-index*40;play.textContent=t("Pause","暂停");raf=requestAnimationFrame(animate);}
@@ -32,6 +32,7 @@ export function mount(root){
         [cfg,result]=await Promise.all([id,id+'-'+name].map(async file=>{const r=await fetch('/tracking/'+file+'.json',{signal});if(!r.ok)throw Error(r.status);return r.json();}));
       }
       signal.throwIfAborted();view?.dispose();view=null;
+      const fresh=canvas.cloneNode(false);canvas.replaceWith(fresh);canvas=fresh;
       const next=await makeEye(canvas,signal,cfg,true);
       if(signal.aborted){next.dispose();return;}
       view=next;frames=result.frames;range.max=frames.length-1;
@@ -39,7 +40,7 @@ export function mount(root){
       draw(live?0:Math.min(frames.length-1,Math.round(video.currentTime*25)));
       status.textContent=(live?t("On-device physics","设备现场物理执行"):t("Recorded physics","预录物理执行"))+" · "+id.toUpperCase()+" · "+(result.end==="returned"?t("Completed","动作完成"):result.end);
       if(live)toggle();
-    }catch(e){if(!signal.aborted){reset();status.textContent=t("Showing the recorded physics run","当前显示预录物理执行");}}
+    }catch(e){if(!signal.aborted){console.warn("Tracker trial unavailable",e);reset();status.textContent=t("Showing the recorded physics run","当前显示预录物理执行");}}
     finally{await course?.dispose();if(!signal.aborted)run.disabled=!navigator.gpu||!root.dataset[id];}
   }
   action.onchange=body.onchange=reset;run.onclick=()=>open(true);ghost.onchange=()=>view?draw(index):open(false);

@@ -4,6 +4,7 @@ const en=Astro.props.lang==="en";
 const t=(a:string,b:string)=>en?a:b;
 const root="https://github.com/OMEGA-i/SuperMimicKit";
 const courses=root+"/releases/download/courses-20261107/";
+const steps=[[45,30,45,50],[15,25,30,40],[20,40,35,50],[20,15,35,35]];
 const previews=root+"/releases/download/demo-preview-20261024/";
 ---
 <section class="tracker" data-tracker data-en={en} data-g1={import.meta.env.PUBLIC_G1_PATROL_MANIFEST || __G1_PATROL_DEV__} data-a3={import.meta.env.PUBLIC_A3_PATROL_MANIFEST || __A3_PATROL_DEV__}>
@@ -19,7 +20,7 @@ const previews=root+"/releases/download/demo-preview-20261024/";
 </section>
 <section class="weights"><h2>{t("Models and code","模型与代码")}</h2>
 <p><a href={root}>GitHub ↗</a> · <a href="https://github.com/OMEGA-i/omega-i.github.io/releases/tag/showroom-demos-v1">{t("Download motion samples","下载跟踪样例")}</a> · <a href={courses+"inference-runtime.zip"}>{t("Course inference runtime","课程模型推理环境")}</a> · <a href={root+"/blob/main/pretrained/courses-20261107/README.md"}>{t("Validation checkpoints","验证集选出的 checkpoint")}</a></p>
-<table><thead><tr><th>{t("Robot","本体")}</th><th>{t("Course · FP32 weights.pt","课程 · FP32 weights.pt")}</th><th>ONNX · FP32</th></tr></thead><tbody>{["g1","a3","h2","sih2300"].map((body,i)=><tr><th>{body.toUpperCase()}</th><td>{["a_lafan_50k","b_bones_50k","c_lafan25k_bones25k","d_bones25k_lafan25k"].map((c,j)=><a href={courses+body+"-"+c+".zip"}>{["LAFAN","BONES","LAFAN → BONES","BONES → LAFAN"][j]}</a>)}</td><td>{i<3?<a href={previews+"SuperMimicKit-"+body+"-"+["55k5","100k","30k"][i]+"-onnx-fp32.zip"}>{["55.5k","100k","30k"][i]}</a>:"—"}</td></tr>)}</tbody></table>
+<table><thead><tr><th>{t("Robot","本体")}</th><th>{t("Course · FP32 weights.pt","课程 · FP32 weights.pt")}</th><th>ONNX · FP32</th></tr></thead><tbody>{["g1","a3","h2","sih2300"].map((body,i)=><tr><th>{body.toUpperCase()}</th><td>{["a_lafan_50k","b_bones_50k","c_lafan25k_bones25k","d_bones25k_lafan25k"].map((c,j)=><a href={courses+body+"-"+c+".zip"}>{["LAFAN","BONES","LAFAN → BONES","BONES → LAFAN"][j]} · {steps[i][j]}k</a>)}</td><td>{i<3?<a href={previews+"SuperMimicKit-"+body+"-"+["55k5","100k","30k"][i]+"-onnx-fp32.zip"}>{["55.5k","100k","30k"][i]}</a>:"—"}</td></tr>)}</tbody></table>
 </section>
 <script>
 import {mount} from "../tracker/studio";

@@ -28,12 +28,23 @@ export async function createGenerator(manifestUrl, jointNames, progress) {
   let data;
   if (spec.parts) {
     let part = 0, received = 0;
+    // Keep at most three compressed fragments in flight, consuming them in graph order.
+    const pending = [];
+    let requested = 0;
+    const fetchPart = async name => {
+      const response = await fetch(new URL(name, absolute));
+      if (!response.ok) throw new Error("MODEL");
+      return new Uint8Array(await response.arrayBuffer());
+    };
     const compressed = new ReadableStream({
       async pull(controller) {
         if (part === spec.parts.length) { controller.close(); return; }
-        const response = await fetch(new URL(spec.parts[part++], absolute));
-        if (!response.ok) throw new Error("MODEL");
-        const bytes = new Uint8Array(await response.arrayBuffer());
+        while (pending.length < 3 && requested < spec.parts.length) {
+          pending.push(fetchPart(spec.parts[requested++]).catch(error=>({error})));
+        }
+        const bytes = await pending.shift();
+        if (bytes.error) throw bytes.error;
+        part++;
         received += bytes.length;
         progress("download", received, spec.transferBytes);
         controller.enqueue(bytes);

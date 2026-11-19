@@ -8,7 +8,19 @@ concurrency:
   group: pages
   cancel-in-progress: false
 jobs:
+  verify-joystick:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify all released checkpoints, browser graph and sample files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download g1-webgpu-v1 --repo OMEGA-i/Joystick --dir "$RUNNER_TEMP/joystick"
+          cd "$RUNNER_TEMP/joystick"
+          sha256sum -c "$GITHUB_WORKSPACE/tools/joystick/release.sha256"
   publish:
+    needs: verify-joystick
     runs-on: ubuntu-latest
     environment: github-pages
     steps:
