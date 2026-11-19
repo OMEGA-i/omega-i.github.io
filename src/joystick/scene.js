@@ -1,9 +1,9 @@
-import { showroom } from "../showroom/scene.js";
+import {prepareStage, portraitFov, portraitOffset} from "../showroom/lighting.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
 
 const xyz = (x, y, z) => new THREE.Vector3(x, z, -y);
 const sceneFromWorld = new THREE.Quaternion().setFromAxisAngle(
@@ -61,22 +61,9 @@ function groundLine(points, color, width, dashed = false) {
 export async function createScene(element, names) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.08;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
   const scene = new THREE.Scene();
-  // The Joystick viewer uses Y-up coordinates for its robot poses.
-  const furnishings = showroom(scene);
-  furnishings.rotation.x = -Math.PI / 2;
-  const environment = new RoomEnvironment();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(environment, 0.025).texture;
-  scene.environmentIntensity = 0.55;
-  pmrem.dispose();
-  environment.dispose();
-  const camera = new THREE.PerspectiveCamera(34, 1, 0.02, 60);
+  prepareStage(scene, renderer, true);
+  const camera = new THREE.PerspectiveCamera(portraitFov, 1, 0.03, 60);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enablePan = false;
   controls.maxPolarAngle = Math.PI * 0.485;
@@ -156,15 +143,11 @@ export async function createScene(element, names) {
   function reset() {
     if (!motion) return;
     anchor.copy(rootAt(current));
-    anchor.y = 0.9;
+    anchor.y = selectedClip ? 1.02 : .78;
     controls.target.copy(anchor);
-    const distance = camera.aspect < 0.88 ? 3.8 : 3.6;
-    camera.position
-      .copy(anchor)
-      .addScaledVector(
-        new THREE.Vector3(0.61, 0.36, 0.76).normalize(),
-        distance,
-      );
+    const offset = portraitOffset(anchor.y);
+    if (camera.aspect < .88) offset.multiplyScalar(1.15);
+    camera.position.copy(anchor).add(xyz(offset.x, offset.y, offset.z));
     previousAnchor.copy(anchor);
     controls.update();
     render();
@@ -244,7 +227,7 @@ export async function createScene(element, names) {
       });
     }
     anchor.copy(rootAt(current));
-    anchor.y = 0.9;
+    anchor.y = selectedClip ? 1.02 : .78;
     const move = anchor.clone().sub(previousAnchor);
     if (following) {
       camera.position.add(move);

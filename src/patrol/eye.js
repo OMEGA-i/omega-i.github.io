@@ -3,7 +3,7 @@ import * as THREE from "three";
 // The recorded and live views use the same warehouse fixtures and 48° lens.
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {MeshoptDecoder} from "three/addons/libs/meshopt_decoder.module.js";
-import { showroom } from "../showroom/scene.js";
+import {prepareStage, portraitFov, portraitOffset} from "../showroom/lighting.js";
 export async function makeEye(canvas, signal, cfg) {
   signal.throwIfAborted();
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -13,7 +13,9 @@ export async function makeEye(canvas, signal, cfg) {
   const scene = new THREE.Scene(),
     camera = new THREE.PerspectiveCamera(48, 1, 0.03, 55);
   camera.up.set(0, 0, 1);
-  showroom(scene,true);
+  const disposeStage = prepareStage(scene, renderer);
+  const targetHeight = cfg.body === "g1" ? .78 : 1.02;
+  const initialOffset = portraitOffset(targetHeight);
   const model=(await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(cfg.body==="a3"?"/joystick/a3/robot.glb":"/joystick/g1.glb")).scene;
   const links=cfg.bodyNames.flatMap((name,i)=>{
     const node=model.getObjectByName(name);return node?[[node,i]]:[];
@@ -38,14 +40,16 @@ export async function makeEye(canvas, signal, cfg) {
       camera.updateProjectionMatrix();
     }
     model.visible=angle!=="eye";
+    const fov = model.visible ? portraitFov : 48;
+    if (camera.fov !== fov) { camera.fov=fov; camera.updateProjectionMatrix(); }
     if(model.visible){
       for(const [node,i] of links){
         node.position.fromArray(s.linkPositions,3*i);
         const q=s.linkRotations,index=4*i;
         node.quaternion.set(q[index+1],q[index+2],q[index+3],q[index]).multiply(meshBasis);
       }
-      target.set(s.xy[0],s.xy[1],cfg.body==="g1"?.62:.85);
-      offset.set(-2.7,-1.8,1.1);
+      target.set(s.xy[0],s.xy[1],targetHeight);
+      offset.copy(initialOffset);
       for(let lift=0;lift<14;lift++){
         ray.set(target,offset.clone().normalize());
         if(!racks.some(box=>{const hit=ray.intersectBox(box,new THREE.Vector3());return hit&&hit.distanceTo(target)<offset.length();}))break;
@@ -65,6 +69,7 @@ export async function makeEye(canvas, signal, cfg) {
   return {
     draw,
     dispose() {
+      disposeStage();
 
       scene.traverse((o) => {
         if (o.isInstancedMesh) o.dispose();

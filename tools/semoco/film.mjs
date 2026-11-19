@@ -13,21 +13,16 @@ try {
     document.body.innerHTML='<canvas></canvas>';
     document.body.style.margin='0';
     const T=await import('/node_modules/.vite/deps/three.js');
-    const {showroom}=await import('/src/showroom/scene.js');
+    const {prepareStage,portraitFov,portraitOffset}=await import('/src/showroom/lighting.js');
     const {GLTFLoader}=await import('/node_modules/three/examples/jsm/loaders/GLTFLoader.js');
     const {MeshoptDecoder}=await import('/node_modules/three/examples/jsm/libs/meshopt_decoder.module.js');
     const scene=new T.Scene();
-    showroom(scene);
+
     const canvas=document.querySelector('canvas');
     const renderer=new T.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});
-    renderer.shadowMap.enabled=true;
-    renderer.shadowMap.type=T.PCFSoftShadowMap;
-    const sun=scene.children.find(o=>o.isDirectionalLight);
-    sun.castShadow=true;
-    sun.shadow.mapSize.set(2048,2048);
-    sun.shadow.normalBias=.015;
+    prepareStage(scene,renderer);
     renderer.setSize(960,540);
-    const cam=new T.PerspectiveCamera(33,16/9,.03,60);
+    const cam=new T.PerspectiveCamera(portraitFov,16/9,.03,60);
     cam.up.set(0,0,1);
     const robot=(await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(body==='g1'?'/joystick/g1.glb':'/joystick/a3/robot.glb')).scene;
     robot.traverse(o=>{if(o.isMesh)o.castShadow=true;});
@@ -37,7 +32,8 @@ try {
     if(links.filter(Boolean).length<29) throw Error('Robot link mismatch');
     const root=track.names.indexOf(body==='g1'?'pelvis':'pelvis_Link');
     const pelvis=root>0?root:1;
-    const h=body==='g1'?.7:.93;
+    const h=body==='g1'?.78:1.02;
+    const offset=portraitOffset(h);
     window.drawFrame=i=>{
       const frame=track.frames[i];
       links.forEach((node,k)=>{
@@ -47,8 +43,8 @@ try {
         node.quaternion.set(qx,qy,qz,w).multiply(basis);
       });
       const [x,y]=frame[pelvis];
-      cam.position.set(x+3.05*h/.7,y-1.5*h/.7,h+.52);
-      cam.lookAt(x,y,h*1.16);
+      cam.position.set(x,y,h).add(offset);
+      cam.lookAt(x,y,h);
       renderer.render(scene,cam);
       return canvas.toDataURL('image/jpeg',.94).split(',')[1];
     };

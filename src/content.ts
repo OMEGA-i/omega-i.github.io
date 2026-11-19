@@ -34,7 +34,7 @@ export const projects = [
   {
     id: "semoco",
     name: "SeMoCo",
-    cover: "/research/phrase.webp",
+    cover: "/phrases/g1/rhythm.webp",
     alt: [
       "Unitree G1 replaying a text-generated dance",
       "宇树 G1 演绎由文字生成的舞步",
