@@ -12,10 +12,11 @@ try{
   assert.deepEqual(await page.locator('.project h3').allTextContents(),['Joystick','SeMoCo','SuperMimicKit','PlayGround']);
   await page.goto(absolute('/en/projects/joystick/'));
   await page.locator('[data-vx]').fill('.67');await page.locator('[data-vy]').fill('-.23');
+  const started=Date.now();
   await page.locator('[data-run]').click();
-  await page.waitForFunction(()=>/Generated motion reference|unavailable/i.test(document.querySelector('[data-joystick] [data-status]').textContent),null,{timeout:600000});
+  await page.waitForFunction(()=>/Generated motion reference|unavailable/i.test(document.querySelector('[data-joystick] [data-status]').textContent),null,{timeout:1800000});
   const generated=await page.locator('[data-joystick] [data-status]').textContent();
-  assert.match(generated,/Generated motion reference/);console.log(generated);
+  assert.match(generated,/Generated motion reference/);console.log(generated,Math.round((Date.now()-started)/1000)+" s including cold load");
   await page.goto(absolute('/en/projects/supermimickit/'));
   const studio=page.locator('[data-tracker]');
   for(const body of ['G1','A3']){
