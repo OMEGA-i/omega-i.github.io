@@ -51,6 +51,6 @@ test("SeMoCo links the merged release and preserves the pose when switching robo
   await video.evaluate(v=>{v.currentTime=.96});
   await expect.poll(()=>video.evaluate(v=>(v as HTMLVideoElement).currentTime)).toBeCloseTo(.96);
   await player.locator("[data-robot]").getByRole("radio",{name:"A3"}).check();
-  await expect(video).toHaveAttribute("src","/phrases/a3/rhythm.mp4");
+  await expect(video).toHaveAttribute("src",/^\/phrases\/a3\/rhythm\.mp4\?v=[0-9a-f]{12}$/);
   await expect.poll(()=>video.evaluate(v=>(v as HTMLVideoElement).currentTime)).toBeCloseTo(.96);
 });

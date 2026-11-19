@@ -1,11 +1,16 @@
 ---
+import {mediaUrl} from "../media";
 import ModelSwitch from "./ModelSwitch.astro";
+const clips = Object.fromEntries(["g1","a3"].flatMap(body => ["rhythm","dance"].flatMap(phrase => ["mp4","webp"].map(ext => {
+  const path = "/phrases/" + body + "/" + phrase + "." + ext;
+  return [path, mediaUrl(path)];
+}))));
 const en = Astro.props.lang === "en";
 ---
-<section class="semstage" data-semoco data-en={String(en)}>
+<section class="semstage" data-semoco data-clips={JSON.stringify(clips)} data-en={String(en)}>
   <header><div><small>{en?"MOTION PHRASE":"动作短语"}</small><h2 data-caption>{en?"Dance in the showroom":"在展厅里跳一段舞"}</h2></div>
   <ModelSwitch control="data-robot" label={en?"Robot":"本体"}/></header>
-  <video controls playsinline preload="metadata" poster="/phrases/g1/rhythm.webp" src="/phrases/g1/rhythm.mp4" aria-label={en?"Generated dance on the selected robot":"机器人演绎生成的舞步"}></video>
+  <video controls playsinline preload="metadata" poster={clips["/phrases/g1/rhythm.webp"]} src={clips["/phrases/g1/rhythm.mp4"]} aria-label={en?"Generated dance on the selected robot":"机器人演绎生成的舞步"}></video>
   <div class="choices" role="group" aria-label={en?"Dance prompt":"舞蹈提示词"}>
     <button type="button" data-phrase="rhythm" aria-pressed="true">{en?"High-knee dance":"提膝摆臂"}</button>
     <button type="button" data-phrase="dance" aria-pressed="false">{en?"Side steps and a turn":"侧步转身"}</button>
@@ -16,6 +21,7 @@ const en = Astro.props.lang === "en";
 </section>
 <script>
 for (const stage of document.querySelectorAll<HTMLElement>("[data-semoco]")) {
+  const clips = JSON.parse(stage.dataset.clips!);
   const video = stage.querySelector("video")!;
   const buttons = stage.querySelectorAll<HTMLButtonElement>("[data-phrase]");
   let phrase = "rhythm", time = 0, playing = false;
@@ -26,8 +32,8 @@ for (const stage of document.querySelectorAll<HTMLElement>("[data-semoco]")) {
       video.currentTime = reset ? 0 : Math.min(time, video.duration);
       if (playing) video.play().catch(() => {});
     };
-    video.poster = `/phrases/${robot}/${phrase}.webp`;
-    video.src = `/phrases/${robot}/${phrase}.mp4`;
+    video.poster = clips[`/phrases/${robot}/${phrase}.webp`];
+    video.src = clips[`/phrases/${robot}/${phrase}.mp4`];
   }
   stage.addEventListener("change", () => switchClip());
   buttons.forEach(button => button.addEventListener("click", () => {

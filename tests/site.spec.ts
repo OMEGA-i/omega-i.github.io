@@ -71,7 +71,7 @@ test("mobile offline from the lab and without WebGPU", async ({
 test("SeMoCo offers two generated dance prompts", async ({page}) => {
   await page.goto("/en/projects/semoco/");
   await page.getByRole("button", {name:"Side steps and a turn"}).click();
-  await expect(page.locator(".semstage video")).toHaveAttribute("src","/phrases/g1/dance.mp4");
+  await expect(page.locator(".semstage video")).toHaveAttribute("src",/^\/phrases\/g1\/dance\.mp4\?v=[0-9a-f]{12}$/);
   await expect(page.locator("[data-prompt]")).toContainText("spins around");
 });
 

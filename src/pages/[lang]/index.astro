@@ -1,4 +1,5 @@
 ---
+import {mediaUrl} from "../../media";
 import Architecture from "../../components/Architecture.astro";
 import MotionHero from "../../components/MotionHero.astro";
 import EssayList from "../../components/EssayList.astro";
@@ -28,7 +29,7 @@ const lang = Astro.params.lang as Lang,
             >
               <div class="imagebox">
                 <img
-                  src={p.cover}
+                  src={mediaUrl("/previews/" + p.id + "-front.webp")}
                   alt={p.alt[en ? 0 : 1]}
                   width="700"
                   height="460"
@@ -38,11 +39,11 @@ const lang = Astro.params.lang as Lang,
                   muted
                   playsinline
                   loop
-                  data-src={
+                  data-src={mediaUrl(
                     p.id === "joystick"
                       ? "/joystick/diagonal.mp4"
                       : "/previews/" + p.id + ".mp4"
-                  }
+                  )}
                   aria-hidden="true"
                 ></video>
               </div>

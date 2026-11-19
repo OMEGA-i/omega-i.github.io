@@ -34,6 +34,11 @@ try {
     const pelvis=root>0?root:1;
     const h=body==='g1'?.78:1.02;
 
+    const [x,y,,w,qx,qy,qz]=track.frames[0][pelvis];
+    const yaw=Math.atan2(2*(w*qz+qx*qy),1-2*(qy*qy+qz*qz));
+    const offset=portraitOffset(h,yaw);
+    cam.position.set(x,y,h).add(offset);
+    cam.lookAt(x,y,h);
     window.drawFrame=i=>{
       const frame=track.frames[i];
       links.forEach((node,k)=>{
@@ -42,11 +47,6 @@ try {
         node.position.set(x,y,z);
         node.quaternion.set(qx,qy,qz,w).multiply(basis);
       });
-      const [x,y,,w,qx,qy,qz]=frame[pelvis];
-      const yaw=Math.atan2(2*(w*qz+qx*qy),1-2*(qy*qy+qz*qz));
-      const offset=portraitOffset(h,yaw);
-      cam.position.set(x,y,h).add(offset);
-      cam.lookAt(x,y,h);
       renderer.render(scene,cam);
       return canvas.toDataURL('image/jpeg',.94).split(',')[1];
     };
