@@ -51,3 +51,20 @@ Keep `signature.json` and `joystick.onnx` together in the directory specified by
 The browser draws the original G1 XML visual mesh set. Every generated or recorded body rotation drives its corresponding named rigid body in the GLB. Fixed hand, head and torso attachments preserve their local transforms. The five fallback clips were rendered from this same asset, camera and motion data. A device without a WebGL context plays these videos with timeline scrubbing.
 
 To reproduce the geometry, run Blender with `-b -P export_g1.py -- robot.xml samples.json raw.glb`. Use `gltfpack -i raw.glb -o g1.glb -cc -kn -km -vp 15 -vn 10` for the web asset. Input OBJ identities and the final GLB hash are in `public/joystick/g1.source.json`. Materials and lights are set up for the studio. Mesh topology is preserved without polygon decimation.
+
+## Reproduce the compact-model comparison
+
+Use the original FP32 graph and signature from g1-webgpu-v1. Run the following from the site root with NumPy and ONNX installed, and start the Astro development server on localhost:4321.
+
+```sh
+for mode in fp16 int8 mixed; do
+  mkdir -p "$OUTPUT/$mode"
+  cp "$FP32/signature.json" "$OUTPUT/$mode/"
+  python tools/joystick/compact.py "$FP32/joystick.onnx" "$OUTPUT/$mode/joystick.onnx" "$mode"
+done
+node tools/joystick/precision-check.mjs http://localhost:4321 "$OUTPUT/quality.json" \
+  baseline="$FP32" fp16="$OUTPUT/fp16" int8="$OUTPUT/int8" mixed="$OUTPUT/mixed"
+node tools/joystick/cold-start.mjs https://omega-i.github.io "$OUTPUT/cold-start.json"
+```
+
+All ten commands share the FP32 baseline's initial context and category mapping. Errors use world-space Euclidean link displacement and relative rotation angles over the entire 2.4-second window. Each model uses FP32 activations. The mixed variant stores the main transformer weights as symmetric INT8 with one scale per 32 weights and other large initializers as FP16. Motion quality is evaluated on generated references, before the physics tracker.

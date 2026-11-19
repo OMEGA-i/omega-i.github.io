@@ -23,7 +23,7 @@ try {
       if(status.textContent.includes('Generating motion'))window.times.inferring=performance.now();
     }).observe(status,{childList:true,subtree:true});
     root.addEventListener('omega:reference',e=>{
-      if(e.detail.mode==='live' || e.detail.source==='live' || root.querySelector('[data-preset]').disabled)
+      if(e.detail.origin==='live')
         window.times.completed=performance.now();
     });
   });
