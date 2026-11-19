@@ -29,9 +29,9 @@ for mobile in (False,True):
         draw.ellipse((x-6,410,x+6,422),fill="#ff9988")
     plate.save(site/("research/simulation-mobile.webp" if mobile else "research/simulation-cover.webp"),quality=93)
 # Keep the robot readable at project-card size.
-external.save(folder/"cover.webp",quality=93)
+Image.open(folder/"start.webp").crop((0,0,640,352)).save(folder/"cover.webp",quality=93)
 # The home card plays only the external camera during the outbound detour.
 import subprocess
-subprocess.run(["ffmpeg","-loglevel","error","-y","-ss",str(stamp),"-i",str(folder/"episode.mp4"),
+subprocess.run(["ffmpeg","-loglevel","error","-y","-ss","0","-i",str(folder/"episode.mp4"),
                 "-t","10","-vf","crop=iw/2:ih/2:0:0","-an","-pix_fmt","yuv420p",
                 "-movflags","+faststart",str(site/"previews/playground.mp4")],check=True)

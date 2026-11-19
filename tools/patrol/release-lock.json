@@ -1,17 +1,17 @@
 {
   "repo": "OMEGA-i/PlayGround",
-  "tag": "web-patrol-lafan-v1",
+  "tag": "web-patrol-lafan-v2",
   "assets": {
     "g1": {
-      "file": "patrol-g1-lafan-v1.zip",
-      "sha256": "8267a3d93a41a373222fbb2d661ba6843203ad39ce0f9f66e31f30a6876849fb",
-      "bytes": 33887641,
+      "file": "patrol-g1-lafan-v2.zip",
+      "sha256": "16d3f72577a58c1179f50d27eb0cab5647845e1b8608fc77c5dba56005e7ea0b",
+      "bytes": 33887647,
       "checkpoint": "2d5f9c24a3fd8aed43be1b7f6413bc93d64cb07e9ab2db2f9e5b19e6b0708210"
     },
     "a3": {
-      "file": "patrol-a3-lafan-v1.zip",
-      "sha256": "9b7b431da8eb15153f566ac3787b7c59528e6fd0924bd7244c394c6b7b4af923",
-      "bytes": 34525760,
+      "file": "patrol-a3-lafan-v2.zip",
+      "sha256": "e1adaa0b7b2f4ad4f87df741744cad19ea23f55b8e56332a6ac0028fbe8574cb",
+      "bytes": 34525761,
       "checkpoint": "46f1ba0fe477beeaad70e0c37e98fe7428c449374da0ec9fdd352697d121c6db"
     }
   }

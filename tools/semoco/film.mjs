@@ -33,7 +33,7 @@ try {
     const root=track.names.indexOf(body==='g1'?'pelvis':'pelvis_Link');
     const pelvis=root>0?root:1;
     const h=body==='g1'?.78:1.02;
-    const offset=portraitOffset(h);
+
     window.drawFrame=i=>{
       const frame=track.frames[i];
       links.forEach((node,k)=>{
@@ -42,7 +42,9 @@ try {
         node.position.set(x,y,z);
         node.quaternion.set(qx,qy,qz,w).multiply(basis);
       });
-      const [x,y]=frame[pelvis];
+      const [x,y,,w,qx,qy,qz]=frame[pelvis];
+      const yaw=Math.atan2(2*(w*qz+qx*qy),1-2*(qy*qy+qz*qz));
+      const offset=portraitOffset(h,yaw);
       cam.position.set(x,y,h).add(offset);
       cam.lookAt(x,y,h);
       renderer.render(scene,cam);

@@ -64,7 +64,7 @@ test("mobile offline from the lab and without WebGPU", async ({
   }
   await expect(page.locator(".articlebody h2")).toHaveText([
     "机器人需要什么样的经验？", "Joystick 让运动意图变成全身动作",
-    "PlayGround 让动作在场景中产生结果", "一个例子：G1 如何绕过仓内货架",
+    "PlayGround 让动作在场景中产生结果", "一次从展厅中央出发的巡检",
   ]);
 });
 

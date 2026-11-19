@@ -145,7 +145,16 @@ export async function createScene(element, names) {
     anchor.copy(rootAt(current));
     anchor.y = selectedClip ? 1.02 : .78;
     controls.target.copy(anchor);
-    const offset = portraitOffset(anchor.y);
+    const headingIndex = current * names.length;
+    const rot = motion.quaternions;
+    let heading;
+    if (rot) {
+      const [x,y,z,w] = rot.subarray(headingIndex*4,headingIndex*4+4);
+      heading = Math.atan2(2*(w*z+x*y),1-2*(y*y+z*z));
+    } else {
+      heading = Math.atan2(motion.matrices[headingIndex*9+3],motion.matrices[headingIndex*9]);
+    }
+    const offset = portraitOffset(anchor.y,heading);
     if (camera.aspect < .88) offset.multiplyScalar(1.15);
     camera.position.copy(anchor).add(xyz(offset.x, offset.y, offset.z));
     previousAnchor.copy(anchor);

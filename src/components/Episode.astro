@@ -6,17 +6,17 @@ import nativeA3 from "../../public/inspection/a3-record.json";
 const en=Astro.props.lang==="en", t=(a:string,b:string)=>en?a:b;
 const labels:Record<string,string>={
   inbound:t("Inbound stop complete","收货口停站完成"),bend:t("Enter cross aisle","进入横向通道"),
-  clear:t("Rack cleared","绕过货架"),inventory:t("Inspection complete","库存区检查完成"),
+  clear:t("Inventory aisle","进入库存区通道"),inventory:t("Inspection complete","库存区检查完成"),
   return_lane:t("Return aisle","进入返航通道"),dispatch:t("Dispatch stop complete","发货口停站完成"),
   dock:t("Back at dock","返回充电区")};
 const px=(x:number)=>60+x*39, py=(y:number)=>199-y*39;
 const itinerary=[[0,0],...run.route.map(r=>[Number(r[1]),Number(r[2])])];
-labels.turn=t("Turn onset (+10°)","开始转向（+10°）");
+labels.turn=t("Turn onset (10°)","开始转向（10°）");
 function cues(record:typeof run){
   const start=Number(record.events[0][1]),initial=record.heading[Math.round(start*25)];
   const index=(test:(h:number)=>boolean)=>record.heading.findIndex((h,i)=>i/25>=start && test(h));
   const events=[...record.events];
-  for(const [name,i] of [["turn",index(h=>h>=initial+10)],["aligned",index(h=>h>=75&&h<=105)]] as const){
+  for(const [name,i] of [["turn",index(h=>Math.abs(h-initial)>=10)]] as const){
     if(i>=0)events.push([name,i/25]);
   }
   return events.sort((a,b)=>Number(a[1])-Number(b[1]));
@@ -25,7 +25,7 @@ const milestones=cues(run);
 const profiles=Object.fromEntries([run,nativeA3].map(r=>[r.robot,{
  duration:r.duration,cues:cues(r),samples:r.clearance.samples,contacts:r.clearance.rackContactSamples
 }]));
-const stations:Record<string,string>={inbound:t("Inbound","收货口"),clear:t("Past rack","绕过货架"),inventory:t("Inventory","库存区"),dispatch:t("Dispatch","发货口"),dock:t("Dock","充电区")};
+const stations:Record<string,string>={inbound:t("Inbound","收货口"),clear:t("Inventory aisle","进入库存区通道"),inventory:t("Inventory","库存区"),dispatch:t("Dispatch","发货口"),dock:t("Dock","充电区")};
 labels.aligned=t("Facing the cross aisle","机身转入横向通道");
 ---
 <section class="episode" data-episode data-profiles={JSON.stringify(profiles)} data-labels={JSON.stringify(labels)} data-stations={JSON.stringify(stations)} data-lang={en?"en":"zh"}>

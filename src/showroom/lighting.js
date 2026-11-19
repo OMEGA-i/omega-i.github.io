@@ -2,10 +2,10 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { showroom } from './scene.js';
 
-// The patrol, motion reference and dance all begin at the showroom dock.
+// The patrol, motion reference and dance all begin at the central cross aisle.
 export const portraitFov = 35;
-export function portraitOffset(height) {
-  return new THREE.Vector3(-2.45, 2.05, .7).multiplyScalar(height / .78);
+export function portraitOffset(height, yaw = 0) {
+  return new THREE.Vector3(3.15, -.68, .56).applyAxisAngle(new THREE.Vector3(0,0,1), yaw).multiplyScalar(height / .78);
 }
 
 export function prepareStage(scene, renderer, yUp = false) {

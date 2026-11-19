@@ -3,8 +3,8 @@ import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 import {readFile} from 'node:fs/promises';
 
-const [origin,body,mosaic,target]=process.argv.slice(2);
-const record=JSON.parse(await readFile(body==='g1'?'public/inspection/record.json':'public/inspection/a3-record.json','utf8'));
+const [origin,body,mosaic,target,telemetry]=process.argv.slice(2);
+const record=JSON.parse(await readFile(telemetry || (body==='g1'?'public/inspection/record.json':'public/inspection/a3-record.json'),'utf8'));
 const browser=await chromium.launch({channel:'chrome'});
 try {
   const page=await browser.newPage();

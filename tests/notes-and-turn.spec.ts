@@ -36,10 +36,10 @@ test("physical inspection keeps camera, event and telemetry on one clock",async(
   await page.goto("/en/projects/playground/");
   const episode=page.locator("[data-episode]");
   await episode.getByRole("button",{name:/Inspection complete/}).click();
-  await expect(episode.locator(".replay-controls output")).toContainText("30.30");
+  await expect(episode.locator(".replay-controls output")).toContainText(Number(g1.events.find(row=>row[0]==="inventory")![1]).toFixed(2));
   await episode.locator("select[data-angle]").selectOption("2");
   await expect(episode.locator(".screen")).toHaveAttribute("data-angle","2");
-  await expect(episode.locator(".replay-controls output")).toContainText("30.30");
+  await expect(episode.locator(".replay-controls output")).toContainText(Number(g1.events.find(row=>row[0]==="inventory")![1]).toFixed(2));
   await expect(episode.locator("[data-measure]")).toContainText("Ground speed");
 });
 

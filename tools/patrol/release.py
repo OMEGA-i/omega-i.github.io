@@ -18,7 +18,7 @@ def package(inputs, destination, license_file):
         expected = {"g1":(45000,"2d5f9c24a3fd8aed43be1b7f6413bc93d64cb07e9ab2db2f9e5b19e6b0708210"),"a3":(15000,"46f1ba0fe477beeaad70e0c37e98fe7428c449374da0ec9fdd352697d121c6db")}
         if (manifest["iteration"],manifest["checkpoint"]) != expected[body]:
             raise ValueError(f"Unexpected LAFAN course A source for {body}")
-        name = f"patrol-{body}-lafan-v1.zip"
+        name = f"patrol-{body}-lafan-v2.zip"
         attribution = (f"OMEGA SuperMimicKit courses-20261107, LAFAN course A, {body}, "
                        f"iteration {manifest['iteration']}. Source checkpoint SHA-256 {manifest['checkpoint']}.\n"
                        "Stride derived from Unitree unitree_rl_gym (BSD-3-Clause), revision "
@@ -36,7 +36,7 @@ def package(inputs, destination, license_file):
                 data = notices[member] if member in notices else (source/member).read_bytes()
                 z.writestr(zipfile.ZipInfo(member),data,compress_type=zipfile.ZIP_DEFLATED)
         assets[body] = dict(file=name,sha256=digest(destination/name),bytes=(destination/name).stat().st_size,checkpoint=manifest["checkpoint"])
-    LOCK.write_text(json.dumps(dict(repo="OMEGA-i/PlayGround",tag="web-patrol-lafan-v1",assets=assets),indent=2)+"\n")
+    LOCK.write_text(json.dumps(dict(repo="OMEGA-i/PlayGround",tag="web-patrol-lafan-v2",assets=assets),indent=2)+"\n")
 def stage(inputs, destination):
     manifest=json.loads(LOCK.read_text())
     for body, asset in manifest["assets"].items():

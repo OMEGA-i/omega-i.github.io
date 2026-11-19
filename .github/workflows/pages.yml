@@ -28,7 +28,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           lock=tools/patrol/release-lock.json
-          gh release download "$(jq -r .tag "$lock")" --repo "$(jq -r .repo "$lock")" --pattern 'patrol-*-v1.zip' --dir "$RUNNER_TEMP/patrol"
+          gh release download "$(jq -r .tag "$lock")" --repo "$(jq -r .repo "$lock")" --pattern 'patrol-*-v2.zip' --dir "$RUNNER_TEMP/patrol"
           python3 tools/patrol/release.py stage "$RUNNER_TEMP/patrol" dist
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

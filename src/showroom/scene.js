@@ -1,7 +1,7 @@
 // The furnishing module is the original Joystick web/obstacles.js at 4664a0d.
 import * as THREE from 'three';
 import { addObstacles } from './obstacles.js';
-export const dockWorld = [14.4, -6.25];
+export const dockWorld = [0, 0];
 export function showroom(scene, patrol = false) {
   scene.background = new THREE.Color('#f5f5f7');
   scene.fog = new THREE.Fog('#f5f5f7',15,40);

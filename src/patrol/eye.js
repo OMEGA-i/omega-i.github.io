@@ -15,6 +15,7 @@ export async function makeEye(canvas, signal, cfg) {
   camera.up.set(0, 0, 1);
   const disposeStage = prepareStage(scene, renderer);
   const targetHeight = cfg.body === "g1" ? .78 : 1.02;
+  const vertical = new THREE.Vector3(0,0,1);
   const initialOffset = portraitOffset(targetHeight);
   const model=(await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(cfg.body==="a3"?"/joystick/a3/robot.glb":"/joystick/g1.glb")).scene;
   const links=cfg.bodyNames.flatMap((name,i)=>{
@@ -49,7 +50,7 @@ export async function makeEye(canvas, signal, cfg) {
         node.quaternion.set(q[index+1],q[index+2],q[index+3],q[index]).multiply(meshBasis);
       }
       target.set(s.xy[0],s.xy[1],targetHeight);
-      offset.copy(initialOffset);
+      offset.copy(initialOffset).applyAxisAngle(vertical,s.yaw);
       for(let lift=0;lift<14;lift++){
         ray.set(target,offset.clone().normalize());
         if(!racks.some(box=>{const hit=ray.intersectBox(box,new THREE.Vector3());return hit&&hit.distanceTo(target)<offset.length();}))break;

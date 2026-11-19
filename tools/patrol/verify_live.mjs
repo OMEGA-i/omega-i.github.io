@@ -25,7 +25,7 @@ try {
     await page.mouse.click(...pos);
   };
   await floor.scrollIntoViewIfNeeded();
-  await place(3.75, 0);
+  await place(4, 2.9);
   assert.match(
     await panel.locator("[data-status-live]").innerText(),
     /clear spot/,
