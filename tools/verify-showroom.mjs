@@ -22,10 +22,10 @@ try{
   for(const body of ['G1','A3']){
     await studio.getByRole('radio',{name:body}).check();
     await studio.getByRole('button',{name:'Run tracker'}).click();
-    await page.waitForFunction(()=>/On-device physics|Showing the recorded/.test(document.querySelector('[data-tracker] [role=status]').textContent),null,{timeout:120000});
+    await page.waitForFunction(()=>/On-device physics|Recorded physics playback/.test(document.querySelector('[data-tracker] [role=status]').textContent),null,{timeout:120000});
     const status=await studio.locator('p[role=status]').innerText();console.log(status);assert.match(status,/Completed/);
-    await studio.locator('[type=range]').fill('35');await studio.locator('[data-ghost]').uncheck();
-    assert.equal(await studio.locator('output').textContent(),'1.40 s');
+    await studio.locator('[data-timeline]').fill('35');await studio.locator('[data-ghost]').uncheck();
+    assert.equal(await studio.locator('[data-time]').textContent(),'1.40 s');
   }
   const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
   await mobile.addInitScript(()=>Object.defineProperty(navigator,'gpu',{value:undefined}));

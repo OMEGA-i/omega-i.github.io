@@ -23,8 +23,13 @@ try {
       if(status.textContent.includes('Generating motion'))window.times.inferring=performance.now();
     }).observe(status,{childList:true,subtree:true});
     root.addEventListener('omega:reference',e=>{
-      if(e.detail.origin==='live')
+      if(e.detail.origin==='live' && !window.firstMotionDigest){
         window.times.completed=performance.now();
+        window.firstMotionDigest=Promise.all([e.detail.positions,e.detail.rotations].map(async values=>{
+          const digest=await crypto.subtle.digest("SHA-256",values);
+          return Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,"0")).join("");
+        }));
+      }
     });
   });
   const start=performance.now();
@@ -41,6 +46,7 @@ try {
   const warm=performance.now();await studio.locator('[data-run]').click();
   await page.waitForFunction(()=>document.querySelector('[data-joystick] [data-status]').textContent.includes('Generated motion reference · 0.8 / 0.25'));
   const phases=await page.evaluate(()=>window.__joystickTimings);
-  const result={origin,status,phases,browser:browser.version(),coldSeconds,warmSeconds:(performance.now()-warm)/1000,timings,assets};
+  const firstMotionDigest=await page.evaluate(()=>window.firstMotionDigest);
+  const result={origin,status,firstMotionDigest,phases,browser:browser.version(),coldSeconds,warmSeconds:(performance.now()-warm)/1000,timings,assets};
   writeFileSync(output,JSON.stringify(result,null,2));console.log(status,result.coldSeconds,result.warmSeconds);
 } finally {await browser.close();}

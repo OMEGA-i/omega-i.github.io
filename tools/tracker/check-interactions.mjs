@@ -6,7 +6,7 @@ try {
   const errors=[];page.on('pageerror',e=>errors.push(String(e)));
   await page.goto(new URL('/en/projects/supermimickit/',process.argv[2]).href);
   const root=page.locator('[data-tracker]');
-  await root.locator('[data-inspect]').click();
+  await root.scrollIntoViewIfNeeded();
   await root.locator('canvas').waitFor();
   const stage=await root.locator('canvas').boundingBox();
   await page.mouse.move(stage.x+30,stage.y+30);await page.mouse.down();await page.mouse.move(stage.x+130,stage.y+30);await page.mouse.up();
