@@ -1,0 +1,23 @@
+---
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>OMEGA · Omni Embodied Generalist AI</title>
+    <script is:inline>
+      let lang = navigator.language.toLowerCase().startsWith("zh")
+        ? "zh"
+        : "en";
+      try {
+        const saved = localStorage.getItem("lang");
+        if (["zh", "en"].includes(saved)) lang = saved;
+      } catch {}
+      location.replace("/" + lang + "/" + location.search + location.hash);
+    </script>
+  </head>
+  <body>
+    <a href="/en/">English</a> · <a href="/zh/">中文</a>
+  </body>
+</html>

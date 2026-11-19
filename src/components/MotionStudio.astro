@@ -1,0 +1,6 @@
+---
+import Joystick from "./Joystick.astro";
+import Episode from "./Episode.astro";
+const {lang,initial="scene"}=Astro.props;
+---
+{initial==="reference"? <Joystick lang={lang}/> : <section id="scene"><Episode lang={lang}/></section>}

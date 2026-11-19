@@ -1,0 +1,27 @@
+---
+const {label, control, uppercase=false, recordedOnly=false}=Astro.props;
+---
+<omega-model-switch {...{[control]:""}} role="radiogroup" aria-label={label}>
+  <span class="caption">{label}</span>
+  <span class="segment">{["G1","A3"].map((name,i)=>
+    <label><input type="radio" name={control} value={uppercase?name:name.toLowerCase()} checked={i===0} disabled={i===1&&recordedOnly}/><span>{name}</span></label>
+  )}</span>
+</omega-model-switch>
+<script>
+  class OmegaModelSwitch extends HTMLElement {
+    get options(){return this.querySelectorAll<HTMLInputElement>("input");}
+    get value(){return this.querySelector<HTMLInputElement>(":checked")!.value;}
+    set value(next:string){this.options.forEach(option=>option.checked=option.value===next);}
+  }
+  if(!customElements.get("omega-model-switch"))customElements.define("omega-model-switch",OmegaModelSwitch);
+  declare global {interface HTMLElementTagNameMap {"omega-model-switch":OmegaModelSwitch}}
+</script>
+<style>
+omega-model-switch{display:inline-grid;justify-items:start;gap:5px;color:var(--fg);align-self:center}
+.caption{font:550 12px/1.3 var(--font);color:var(--muted)}
+.segment{display:inline-flex;background:var(--tint);border:1px solid var(--rule);border-radius:22px;padding:3px}
+.segment label{position:relative;display:block;cursor:pointer}
+.segment input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:inherit}
+.segment label span{display:grid;place-items:center;min-width:48px;height:32px;border-radius:18px;font:600 14px var(--font);color:var(--muted);pointer-events:none}
+.segment input:checked+span{color:white;background:#294eb4}.segment input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}.segment input:disabled+span{opacity:.45}
+</style>

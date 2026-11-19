@@ -1,0 +1,15 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { locales, type Lang } from "../../../content";
+import EssayList from "../../../components/EssayList.astro";
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+const lang = Astro.params.lang as Lang;
+---
+<Layout lang={lang} title="Blog">
+  <section class="wrap detail notebook">
+    <h1>{lang === "en" ? "Research notes" : "研究笔记"}</h1>
+    <EssayList lang={lang} />
+  </section>
+</Layout>

@@ -1,0 +1,52 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { locales, type Lang } from "../../../content";
+import { notes, legacyNotes } from "../../../notes";
+import Packet from "../../../components/notes/Packet.astro";
+
+import run from "../../../../public/inspection/record.json";
+export function getStaticPaths() {
+  return locales.flatMap(lang=>[...notes.map(n=>n.slug),...Object.keys(legacyNotes)].map(slug=>({params:{lang,slug}})));
+}
+const lang=Astro.params.lang as Lang, en=lang==="en", i=en?0:1;
+const slug=Astro.params.slug!;
+if(legacyNotes[slug])return Astro.redirect(`/${lang}/blog/${legacyNotes[slug]}`,301);
+const note=notes.find(n=>n.slug===slug)!;
+const eventTime=(name:string)=>Number(run.events.find(row=>row[0]===name)?.[1]);
+const depart=Math.round(eventTime("inbound")*run.videoHz);
+const yawStart=run.heading[depart];
+const turning=run.heading.findIndex((angle,i)=>i>=depart && Math.abs(angle-yawStart)>10)/run.videoHz;
+const sim=slug==="simulation-data";
+---
+<Layout lang={lang} title={note.title[i]} description={note.summary[i]}>
+<article class="wrap detail essay">
+  <div class="breadcrumb"><a href={`/${lang}/blog/`}>Blog</a> / {note.project}</div>
+  <h1>{note.title[i]}</h1><p class="deck">{note.summary[i]}</p>
+  <figure class="cover"><picture><source media="(max-width:600px)" srcset={sim?"/research/simulation-mobile.webp":"/research/codec-mobile.webp"}/><img src={note.cover} width="1080" height="500" alt={sim?(en?"Two camera views of one G1 physics run":"同一次 G1 物理运行的两个机位"):(en?"Three moments from the generated dance":"舞蹈动作的三个时刻")}/></picture>
+  <figcaption>{sim?(en?"Synchronized observations from a single G1 physics run.":"同一段 G1 物理运行的同步观测。"):(en?"G1 replays three moments from a text-generated dance.":"旧版模型从文字生成舞步，画面截取了 G1 回放中的三个时刻。")}</figcaption></figure>
+  <div class="articlebody">{sim ? <>
+    <h2>{en?"What experience does a robot need?":"机器人需要什么样的经验？"}</h2>
+    <p>{en?"A motion capture records how a person moved. To learn to act, a robot also needs to know what it could observe before it moved and what changed as a result. Taking a step brings new objects into view. Turning too late leaves less room for the next step. Those consequences become the inputs to the next decision. A useful interaction record preserves that sequence.":"一段动捕可以告诉我们，人迈出一步时，脚、膝和骨盆如何配合。要让机器人学会自己行动，还要知道它迈步前能看到什么，这一步又改变了什么。向前走，原先被遮住的物体可能进入视野；转身晚了半步，留给下一步的空间就变小了。上一个动作的结果，成了下一次决策的条件。这段连续的经历，正是我们想采集的具身交互数据。"}</p>
+    <p>{en?"On hardware, moving an obstacle, restoring the starting pose and repeating a command takes work on every trial. In simulation we can specify those conditions and save the state of the world as the robot acts. We can repeat a task with a different obstacle position and ask where the trajectories first diverge. We can also separate what the robot could see from what the simulator knows, so a later evaluator can use ground truth without giving the policy information it could never observe.":"用真机研究“障碍物挪近一点会怎样”，每次都要布置现场、恢复起始姿态、重新采集。仿真让我们可以设定这些条件，在机器人行动时同步保存场景状态。这样就有机会追问，两趟执行究竟从哪里开始分岔？采集时还可以区分机器人相机当时看得见什么，以及仿真器掌握哪些完整状态：前者可以作为策略的输入，后者留给研究者解释结果。"}</p>
+    <section id="reference"><h2>{en?"Joystick gives a movement command a body":"Joystick 让运动意图变成全身动作"}</h2>
+    <p>{en?"A task can ask a humanoid to move forward and left. That instruction specifies a velocity, but leaves open which foot leads, how the pelvis shifts and how the arms balance the stride. Joystick takes a movement command and generates a short whole-body motion reference for G1. The task can request a direction or a change of heading without prescribing every joint angle.":"任务可以要求机器人“向前走，同时往左靠一点”。这句话给出了移动方向，却没有指定哪只脚先迈、骨盆怎样移重心、手臂怎样配合。Joystick 接收速度和转向条件，为 G1 生成一小段全身动作参考。上层任务因此可以用方向和速度表达意图，把每一步的身体协调交给动作模型。"}</p>
+    <p id="webgpu">{en?"Keeping that reference gives the resulting data a useful point of comparison. If the feet land somewhere unexpected, we can look back at the proposed motion before asking what happened during tracking.":"如果实际落脚点偏了，保存下来的运动参考能帮我们回看：模型原本打算踩在哪里，脚又是从哪一步开始走偏的？"} <a href={`/${lang}/projects/joystick/`}>{en?"Try a movement command":"试一条速度指令"} ↗</a></p></section>
+    <section><h2>{en?"PlayGround records what happens when the body acts":"PlayGround 让动作在场景中产生结果"}</h2>
+    <p>{en?"A walking reference on its own says little about whether the robot can get somewhere. PlayGround adds a destination, collision geometry and rules for completing the task. As the tracker drives the simulated body, its measured position feeds back into the next movement command. A wider turn changes both the view from the head camera and the correction needed to reach the destination.":"同一段步态放进不同的场景，能完成的事情很不一样。PlayGround 为执行提供目的地、可碰撞的物体和任务完成条件。跟踪策略驱动物理仿真中的机器人，任务控制器再根据实测位置给出下一条运动指令。机器人若转得宽了一点，头部相机看到的画面会改变，下一步需要修正的方向也会改变。"}</p>
+    <p>{en?"The command, body state, camera view and task event share a clock. From one run we can derive a sample for imitation learning by pairing the observation available at a decision with the action taken. We can also use the measured trajectory and dwell time to judge task completion. Keeping both lets us revisit a decision even after the original experiment is over.":"把指令、身体状态、相机观测和任务事件放在同一条时间轴上，一次执行就有了几种读法。做模仿学习，可以取决策时刻已经可见的观测，配上随后执行的动作；评估任务完成度，则可以查看实测轨迹和停留时长。以后即使调整了停站时长，也可以用原来的轨迹重新计算哪些巡检达到了要求。"}</p></section>
+    <section id="inspection"><h2>{en?"One example from the warehouse":"一个例子：G1 如何绕过仓内货架"}</h2>
+    <p id="turn">{en?"In this run a loaded rack blocks the direct path from inbound to inventory. The bypass waypoints are specified in advance. The G1 a45k tracker follows a walking cycle as the controller steers toward them. PlayGround records the resulting physical motion around the rack. Three moments from that single run show why it is worth keeping the command and the outcome together.":"这次任务中，一排装货货架挡住了从收货口到库存区的直线。绕行途经点预先设定，控制器根据 G1 的实际位置调整指令，G1 的 a45k 策略跟踪周期步态，PlayGround 记录机器人在带碰撞的场景中怎样走完这条路。把这次执行展开看，指令变化、身体响应和通过障碍发生在三个不同的时刻。"}</p>
+    <figure class="moments">{[
+      [eventTime("inbound"),en?"The command changes":"下达转向指令",en?"Inbound dwell is complete. The next target is the side aisle.":"收货口停留完成，下一个目标切换到侧通道。"],
+      [turning,en?"The body responds":"机身开始响应",en?"Pelvis yaw has moved 10° from its heading at departure.":"相对出站朝向，骨盆角度首次变化超过 10°。"],
+      [Number(eventTime("clear").toFixed(2)),en?"The robot clears the rack":"机器人绕过货架",en?"The measured path reaches the waypoint beyond the obstacle.":"实测轨迹到达远端途经点，已经绕到货架另一侧。"]
+    ].map(([sec,title,body])=><a href={`/${lang}/projects/playground/?view=ego&t=${sec}#scene`}><small>{sec} s ↗</small><strong>{title}</strong><span>{body}</span></a>)}</figure>
+    <p>{en?`At inventory, the task requires four continuous seconds within 0.55 m of the station at a measured speed of at most 0.28 m/s. G1 meets that condition at ${eventTime("inventory")} s and finishes its return at ${run.duration} s. If we kept only the final success label, we would lose the distinction between seeing the station, reaching it and staying there long enough. The simulation record lets us recover all three from the same journey.`:`到了库存区，“检查完成”也有具体含义：G1 须在站点半径 0.55 米内，以不超过 0.28 米/秒的实测地速连续停留 4 秒。它在 ${eventTime("inventory")} 秒满足条件，于 ${run.duration} 秒完成返航。如果只保存最后一个“成功”标签，就会丢掉看见库位、走到库位、停够时间之间的区别。保留这一趟的交互记录，我们才能分别回答这三个问题。`}</p>
+    <p><a href={`/${lang}/projects/playground/#scene`}>{en?"Watch the full inspection":"查看完整巡检与同步地图"} →</a></p></section>
+  </> : <section id="depth"><Packet lang={lang}/></section>}</div>
+</article>
+</Layout>
+<style>
+.essay>h1{max-width:22ch;text-wrap:balance}.essay .cover{margin:28px 0}.cover img{width:100%;height:auto;display:block;border-radius:10px}.cover figcaption{margin-top:8px;color:var(--muted);font-size:14px}.essay section{scroll-margin:22px}
+.moments{display:grid;grid-template-columns:repeat(3,1fr);border-block:1px solid var(--rule);margin:26px 0}.moments a{display:grid;align-content:start;gap:8px;text-decoration:none;padding:18px 12px;color:var(--fg)}.moments small{color:var(--accent);font-family:var(--mono)}.moments span{font-size:.9rem;color:var(--muted)}.moments a:hover strong{text-decoration:underline}@media(max-width:650px){.moments{grid-template-columns:1fr}.moments a+a{border-top:1px solid var(--rule)}}
+</style>

@@ -1,0 +1,38 @@
+---
+import type { Lang } from "../content";
+const { lang } = Astro.props as { lang: Lang };
+const en = lang === "en";
+---
+<section class="motion-hero" aria-labelledby="hero-title">
+  <div class="identity">
+    <h1 id="hero-title">OMEGA</h1>
+    <p>Omni Embodied Generalist AI</p>
+  </div>
+  <div class="mission">
+    <h2>{en ? "Research in embodied motion" : "具身运动智能研究"}</h2>
+    <p>{en
+      ? "We study how humanoids turn intent into whole-body motion and learn from the outcomes."
+      : "我们研究人形机器人如何把任务意图变成全身动作，并从执行结果中学习。"}</p>
+    <div class="hero-actions">
+      <a class="enter" href={`/${lang}/studio/`}>{en ? "Open motion studio" : "进入运动实验台"} <span aria-hidden="true">↗</span></a>
+      <a class="see-system" href="#architecture">{en ? "System architecture" : "系统架构"} <span aria-hidden="true">↓</span></a>
+    </div>
+  </div>
+</section>
+<style>
+  .motion-hero { display:grid; grid-template-columns:1.25fr 1fr; align-items:center; gap:6%; padding:clamp(42px,5vw,90px) 0; }
+  .identity h1 { font-size:clamp(80px,11.8vw,185px); line-height:.84; font-weight:630; letter-spacing:-.074em; margin-left:-.055em; }
+  .identity p { font-size:clamp(15px,1.6vw,24px); margin-top:18px; letter-spacing:-.035em; }
+  .mission h2 { font-size:clamp(23px,2.25vw,37px); font-weight:570; line-height:1.18; letter-spacing:-.045em; }
+  .mission p { color:var(--muted); line-height:1.65; margin:10px 0 17px; max-width:44ch; text-wrap:pretty; }
+  .hero-actions { display:flex; align-items:center; flex-wrap:wrap; gap:17px; }
+  .hero-actions a { display:inline-flex; gap:12px; align-items:center; min-height:44px; font-size:14px; font-weight:550; }
+  .enter { color:var(--bg); background:var(--accent); padding:8px 18px; border-radius:30px; }
+  .enter:hover { background:var(--accent); color:var(--bg); }
+  @media(max-width:670px) {
+    .motion-hero { grid-template-columns:1fr; gap:27px; padding:32px 0 25px; }
+    .identity h1 { font-size:clamp(78px,19vw,125px); }
+    .identity p { margin-top:9px; }
+    .mission p { margin:7px 0 10px; }
+  }
+</style>

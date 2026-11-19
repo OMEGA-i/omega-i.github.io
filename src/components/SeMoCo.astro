@@ -1,0 +1,44 @@
+---
+import ModelSwitch from "./ModelSwitch.astro";
+const en = Astro.props.lang === "en";
+---
+<section class="semstage" data-semoco data-en={String(en)}>
+  <header><div><small>{en?"MOTION PHRASE":"动作短语"}</small><h2 data-caption>{en?"Dance in the showroom":"在展厅里跳一段舞"}</h2></div>
+  <ModelSwitch control="data-robot" label={en?"Robot":"本体"}/></header>
+  <video controls playsinline preload="metadata" poster="/phrases/g1/rhythm.webp" src="/phrases/g1/rhythm.mp4" aria-label={en?"Generated dance on the selected robot":"机器人演绎生成的舞步"}></video>
+  <div class="choices" role="group" aria-label={en?"Dance prompt":"舞蹈提示词"}>
+    <button type="button" data-phrase="rhythm" aria-pressed="true">{en?"High-knee dance":"提膝摆臂"}</button>
+    <button type="button" data-phrase="dance" aria-pressed="false">{en?"Side steps and a turn":"侧步转身"}</button>
+  </div>
+  <p data-prompt aria-live="polite">{en?"A person dances energetically, rhythmically lifting their knees high and swinging both arms above their head.":"一个人跟着节奏跳舞，高高抬膝，双臂向头顶摆动。"}</p>
+  <p>{en?"Generated from text with the legacy 150M model. Both robots replay the same decoded human motion through kinematic retargeting.":"动作由旧版 150M 模型根据文字生成。切换 G1 或 A3，可以看同一段人体动作在两种本体上的运动学回放。"}
+  <a href="https://github.com/OMEGA-i/SeMoCo">{en?"SeMoCo model and examples":"查看 SeMoCo 模型与样例"} ↗</a></p>
+</section>
+<script>
+for (const stage of document.querySelectorAll<HTMLElement>("[data-semoco]")) {
+  const video = stage.querySelector("video")!;
+  const buttons = stage.querySelectorAll<HTMLButtonElement>("[data-phrase]");
+  let phrase = "rhythm", time = 0, playing = false;
+  function switchClip(reset = false) {
+    const robot = stage.querySelector<HTMLInputElement>("input:checked")!.value;
+    if (video.readyState >= 1) { time = video.currentTime; playing = !video.paused; }
+    video.onloadedmetadata = () => {
+      video.currentTime = reset ? 0 : Math.min(time, video.duration);
+      if (playing) video.play().catch(() => {});
+    };
+    video.poster = `/phrases/${robot}/${phrase}.webp`;
+    video.src = `/phrases/${robot}/${phrase}.mp4`;
+  }
+  stage.addEventListener("change", () => switchClip());
+  buttons.forEach(button => button.addEventListener("click", () => {
+    phrase = button.dataset.phrase!;
+    buttons.forEach(b => b.setAttribute("aria-pressed", String(b === button)));
+    const prompts = stage.dataset.en === "true" ? ["A person dances energetically, rhythmically lifting their knees high and swinging both arms above their head.", "A dancer takes two steps sideways and spins around with both arms stretched out."] : ["一个人跟着节奏跳舞，高高抬膝，双臂向头顶摆动。", "舞者向旁边迈两步，张开双臂转身。"];
+    stage.querySelector("[data-prompt]")!.textContent = prompts[phrase === "rhythm" ? 0 : 1];
+    switchClip(true);
+  }));
+}
+</script>
+<style>
+.semstage{margin-block:2rem;display:grid;gap:1rem}.semstage header{display:flex;align-items:center;justify-content:space-between;gap:1rem}.semstage small{font:600 .78rem var(--mono);color:var(--muted)}.semstage h2{margin:.4rem 0;font-size:clamp(1.4rem,3vw,2.3rem)}.semstage video{width:100%;aspect-ratio:16/9;background:#d8dfe4;border-radius:12px}.choices{display:flex;gap:.6rem}.choices button{padding:.6rem 1rem;color:var(--fg);background:var(--tint);border:1px solid var(--rule);border-radius:2rem;cursor:pointer}.choices [aria-pressed=true]{background:#294eb4;color:white}.semstage p{max-width:70ch;color:var(--muted);margin:0;line-height:1.7}
+</style>

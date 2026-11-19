@@ -1,0 +1,63 @@
+{
+  "sourceCommit": "ee28815ed2d0a9580f60c4e382f2559f9786602b",
+  "modelBytes": 736337531,
+  "modelSha256": "246eba0b0fcf8099dd38b91f15e9535a0a41c63815d6ff1304648e9075142b58",
+  "ortWeb": "1.31.1",
+  "reference": "Original offline_generation.py --device cpu, seed 7, 60 future frames, unquantized world-space joint positions and all 30 full world-space rotation matrices. Public replay positions and rotations derive from the CUDA run, encoded at 1 mm and signed normalized int16 xyzw precision.",
+  "browser": "Chrome 157.0.8103.79 / macOS / Apple Metal 3",
+  "webgpuAdapter": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "device": "",
+    "description": ""
+  },
+  "executionProvider": "webgpu, with ORT default CPU dispatch for auxiliary operations",
+  "measurement": "Local loopback HTTP, end-to-end click to reference event on the actual project page. Diagonal includes first model load and inference. Subsequent commands reuse the session.",
+  "comparisonAgainstOriginalPythonCPU": [
+    {
+      "sample": "diagonal",
+      "ms": 3482.3738749999998,
+      "maxJointM": 6.046438799516744e-06,
+      "maxRootM": 2.9035477540060517e-06,
+      "maxRotationDegrees": 0.001847989488904306
+    },
+    {
+      "sample": "idle",
+      "ms": 151.03995899999973,
+      "maxJointM": 5.312948371770104e-07,
+      "maxRootM": 1.4854595065116882e-07,
+      "maxRotationDegrees": 0.00021695344247571303
+    },
+    {
+      "sample": "forward",
+      "ms": 116.66412500000024,
+      "maxJointM": 7.124188909296549e-06,
+      "maxRootM": 1.2573203136112142e-06,
+      "maxRotationDegrees": 0.0016188938864325425
+    },
+    {
+      "sample": "left",
+      "ms": 135.23212499999954,
+      "maxJointM": 1.5799182341908847e-05,
+      "maxRootM": 1.3760800815361972e-06,
+      "maxRotationDegrees": 0.005159864258701659
+    },
+    {
+      "sample": "backward",
+      "ms": 150.43066699999963,
+      "maxJointM": 4.0558541037944174e-06,
+      "maxRootM": 8.365329940947004e-07,
+      "maxRotationDegrees": 0.0008023211073973556
+    }
+  ],
+  "livePageCheck": {
+    "command": [
+      0.71,
+      -0.18
+    ],
+    "result": "On-device generation"
+  },
+  "cudaComparison": "L20 CUDA PyTorch poses differ slightly from Python CPU. The CUDA output differs from ORT CPU by at most 19.37 mm per joint and 0.91 mm at the root for these five commands.",
+  "visualAsset": "All 37 named visual meshes from the G1 XML, attached to 30 decoder links. Extra rigid attachments for head, hands, pelvis contour, and torso accessories are included.",
+  "visualAssetSha256": "caf4cacbca6bf09714fc6ab388c50aa9ffb20be3a2110b25cc46d0f184260cd4"
+}

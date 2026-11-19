@@ -1,0 +1,53 @@
+# G1 browser demo
+
+The local Astro dev server automatically finds the validated model in the directory specified by `JOYSTICK_MODEL_DIR`. Open either language's Joystick project page, set the command and click **Generate motion**. The model loads on the first click. GitHub Pages builds use the five compact recorded commands by default. The static output contains no checkpoint or ONNX model.
+
+## Reproduce the reference
+
+Use the Joystick checkout at commit `ee28815ed2d0a9580f60c4e382f2559f9786602b` with its pinned Torch environment. Set `BASE` to a directory containing `datasets/bones-seed-25fps/g1` and `runs/g1/fsq100k_25fps`, `XML` to the matching G1 XML and `OUTPUT` to a fresh output directory. The input paths may be read-only links.
+
+From the Joystick checkout, run each of the five commands below with its own output directory. Keep the same initial source and seed for all five. Use `--device cpu` for export parity. The public recordings used the same entry point on L20 CUDA.
+
+```sh
+python tools/offline_generation.py --robot g1 --base "$BASE" --xml "$XML" \
+  --output "$OUTPUT/diagonal" --device cpu --condition-mode sonic --single-only \
+  --export-tracker-reference --initial-source-id '230313/idle_loop_001__A267.bvh' \
+  --category walk_forward_left_medium --command 0.8 0.25
+```
+
+| Sample | Category | Forward (m/s) | Left (m/s) |
+| --- | --- | ---: | ---: |
+| diagonal | walk_forward_left_medium | 0.80 | 0.25 |
+| idle | idle | 0 | 0 |
+| forward | walk_forward_medium | 0.80 | 0 |
+| left | walk_left_medium | 0 | 0.35 |
+| backward | walk_backward_slow | -0.30 | 0 |
+
+`pack_samples.py SOURCE DESTINATION` reads these five directories. The browser reads signed 16-bit little-endian positions in millimetres, with 60 frames, 30 joints and XYZ in world coordinates. Each .quat file stores four signed int16 world-orientation components per body in xyzw order, divided by 32767 on read. The replays represent finite kinematic windows. Every input used for the samples has an output hash in `public/joystick/samples.json`.
+
+## Export and check
+
+Use an isolated environment based on the original Joystick checkout and add `onnx==1.23.2` and `onnxruntime==1.32.0`. Set `SITE_TOOLS` to this directory. From the pinned checkout, run
+
+```sh
+python "$SITE_TOOLS/export_onnx.py" . "$OUTPUT/model" -- \
+  --base "$BASE" --robot g1 --xml "$XML" --device cpu \
+  --initial-source-id '230313/idle_loop_001__A267.bvh' --condition-mode sonic \
+  --category walk_forward_left_medium --command 0.8 0.25 --single-only \
+  --export-tracker-reference --output "$OUTPUT/export-work"
+python "$SITE_TOOLS/verify_onnx.py" "$OUTPUT/model" "$OUTPUT"
+```
+
+The exported graph takes float32 `velocity[2]` and int64 `category[1]` and returns float32 `positions[60,30,3]` and `world_rotations[60,30,3,3]`. It includes category-conditioned primitives, motion normalization, root generation, four argmax token refinement rounds, decoding and fixed G1 forward kinematics. With the 30-joint topology fixed, unrolling the FK tree and lowering three fixed-shape indexed assignments avoids unsupported legacy exporter paths. `validation.json` records the exact model hash, size, browser and per-command comparisons.
+
+The browser uses the WebGPU execution provider, with auxiliary CPU operations assigned by ONNX Runtime. All five reference cases were checked against original CPU predictions. A custom command outside the five presets was also generated through the Astro page. Replay output and the command arrow use the displayed world-frame axes. Camera orbit changes the viewpoint only.
+
+## Local model and public delivery
+
+Keep `signature.json` and `joystick.onnx` together in the directory specified by `JOYSTICK_MODEL_DIR`. The validated graph is approximately 703 MiB; individual GitHub source blobs cannot host it. To enable live generation on a public build after model/primitive redistribution terms are confirmed, host these two files on HTTPS static storage with CORS for the Pages origin and set `PUBLIC_JOYSTICK_MODEL_MANIFEST` to the absolute URL of `signature.json` when building. Use an uncompressed response with `Content-Length` for incremental progress. The visitor downloads the model only after clicking Generate. Keep the public model host and revision pinned to the validation record. Five small bundled samples remain available when WebGPU, memory or model loading is unavailable.
+
+## G1 visual assets
+
+The browser draws the original G1 XML visual mesh set. Every generated or recorded body rotation drives its corresponding named rigid body in the GLB. Fixed hand, head and torso attachments preserve their local transforms. The five fallback clips were rendered from this same asset, camera and motion data. A device without a WebGL context plays these videos with timeline scrubbing.
+
+To reproduce the geometry, run Blender with `-b -P export_g1.py -- robot.xml samples.json raw.glb`. Use `gltfpack -i raw.glb -o g1.glb -cc -kn -km -vp 15 -vn 10` for the web asset. Input OBJ identities and the final GLB hash are in `public/joystick/g1.source.json`. Materials and lights are set up for the studio. Mesh topology is preserved without polygon decimation.

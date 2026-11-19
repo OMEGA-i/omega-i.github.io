@@ -1,0 +1,22 @@
+{
+  "name": "omega-site",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "playwright test"
+  },
+  "type": "module",
+  "dependencies": {
+    "@mujoco/mujoco": "3.6.1",
+    "astro": "^6.4.8",
+    "onnxruntime-web": "^1.31.1",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
+  },
+  "private": true
+}

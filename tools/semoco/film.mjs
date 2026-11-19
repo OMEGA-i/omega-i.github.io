@@ -1,0 +1,64 @@
+// Run against the Astro dev server. Advance one decoded frame per image.
+import { chromium } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
+const [origin, body, poses, movie] = process.argv.slice(2);
+const track = JSON.parse(await readFile(poses,'utf8'));
+const browser = await chromium.launch({channel:'chrome'});
+try {
+  const page = await browser.newPage({viewport:{width:960,height:540}});
+  await page.goto(new URL('/inspection/warehouse-layout.json',origin).href);
+  await page.evaluate(async ({body,track})=>{
+    document.body.innerHTML='<canvas></canvas>';
+    document.body.style.margin='0';
+    const T=await import('/node_modules/.vite/deps/three.js');
+    const {showroom}=await import('/src/showroom/scene.js');
+    const {GLTFLoader}=await import('/node_modules/three/examples/jsm/loaders/GLTFLoader.js');
+    const {MeshoptDecoder}=await import('/node_modules/three/examples/jsm/libs/meshopt_decoder.module.js');
+    const scene=new T.Scene();
+    showroom(scene);
+    const canvas=document.querySelector('canvas');
+    const renderer=new T.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});
+    renderer.shadowMap.enabled=true;
+    renderer.shadowMap.type=T.PCFSoftShadowMap;
+    const sun=scene.children.find(o=>o.isDirectionalLight);
+    sun.castShadow=true;
+    sun.shadow.mapSize.set(2048,2048);
+    sun.shadow.normalBias=.015;
+    renderer.setSize(960,540);
+    const cam=new T.PerspectiveCamera(33,16/9,.03,60);
+    cam.up.set(0,0,1);
+    const robot=(await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(body==='g1'?'/joystick/g1.glb':'/joystick/a3/robot.glb')).scene;
+    robot.traverse(o=>{if(o.isMesh)o.castShadow=true;});
+    scene.add(robot);
+    const basis=new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),Math.PI/2);
+    const links=track.names.map(n=>n&&robot.getObjectByName(n));
+    if(links.filter(Boolean).length<29) throw Error('Robot link mismatch');
+    const root=track.names.indexOf(body==='g1'?'pelvis':'pelvis_Link');
+    const pelvis=root>0?root:1;
+    const h=body==='g1'?.7:.93;
+    window.drawFrame=i=>{
+      const frame=track.frames[i];
+      links.forEach((node,k)=>{
+        if(!node)return;
+        const [x,y,z,w,qx,qy,qz]=frame[k];
+        node.position.set(x,y,z);
+        node.quaternion.set(qx,qy,qz,w).multiply(basis);
+      });
+      const [x,y]=frame[pelvis];
+      cam.position.set(x+3.05*h/.7,y-1.5*h/.7,h+.52);
+      cam.lookAt(x,y,h*1.16);
+      renderer.render(scene,cam);
+      return canvas.toDataURL('image/jpeg',.94).split(',')[1];
+    };
+  },{body,track});
+  const encoder=spawn('ffmpeg',['-loglevel','error','-y','-f','image2pipe','-r',String(track.fps),'-i','-','-c:v','libx264','-crf','19','-pix_fmt','yuv420p','-movflags','+faststart',movie],{stdio:['pipe','inherit','inherit']});
+  const done=once(encoder,'close');
+  for(let i=0;i<track.frames.length;i++){
+    const frame=await page.evaluate(i=>window.drawFrame(i),i);
+    if(!encoder.stdin.write(Buffer.from(frame,'base64')))await once(encoder.stdin,'drain');
+  }
+  encoder.stdin.end();
+  if((await done)[0])throw Error('Movie encoding failed');
+} finally {await browser.close();}

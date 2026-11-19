@@ -1,0 +1,37 @@
+name: Publish OMEGA on Pages
+on: workflow_dispatch
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Build static pages with same-origin patrol models
+        run: npm run build
+        env:
+          PUBLIC_G1_PATROL_MANIFEST: /models/g1/patrol.json
+          PUBLIC_A3_PATROL_MANIFEST: /models/a3/patrol.json
+      - name: Download and verify pinned patrol assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          lock=tools/patrol/release-lock.json
+          gh release download "$(jq -r .tag "$lock")" --repo "$(jq -r .repo "$lock")" --pattern 'patrol-*-v1.zip' --dir "$RUNNER_TEMP/patrol"
+          python3 tools/patrol/release.py stage "$RUNNER_TEMP/patrol" dist
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - uses: actions/deploy-pages@v4

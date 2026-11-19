@@ -1,0 +1,114 @@
+{
+  "fps": 25,
+  "robot": "G1",
+  "format": "int16le-world-xyz-mm",
+  "jointNames": [
+    "pelvis",
+    "left_hip_pitch_link",
+    "left_hip_roll_link",
+    "left_hip_yaw_link",
+    "left_knee_link",
+    "left_ankle_pitch_link",
+    "left_ankle_roll_link",
+    "right_hip_pitch_link",
+    "right_hip_roll_link",
+    "right_hip_yaw_link",
+    "right_knee_link",
+    "right_ankle_pitch_link",
+    "right_ankle_roll_link",
+    "waist_yaw_link",
+    "waist_roll_link",
+    "torso_link",
+    "left_shoulder_pitch_link",
+    "left_shoulder_roll_link",
+    "left_shoulder_yaw_link",
+    "left_elbow_link",
+    "left_wrist_roll_link",
+    "left_wrist_pitch_link",
+    "left_wrist_yaw_link",
+    "right_shoulder_pitch_link",
+    "right_shoulder_roll_link",
+    "right_shoulder_yaw_link",
+    "right_elbow_link",
+    "right_wrist_roll_link",
+    "right_wrist_pitch_link",
+    "right_wrist_yaw_link"
+  ],
+  "parents": [
+    -1,
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    0,
+    7,
+    8,
+    9,
+    10,
+    11,
+    0,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    15,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28
+  ],
+  "xmlSha256": "afdcd26db3cb9c063d981e92c281771e67eecbc9d16306774e32dd282a3a6322",
+  "rotationFormat": "int16le-world-xyzw-snorm",
+  "samples": [
+    {
+      "id": "diagonal",
+      "frames": 60,
+      "velocity": [
+        0.8,
+        0.25
+      ]
+    },
+    {
+      "id": "idle",
+      "frames": 60,
+      "velocity": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "forward",
+      "frames": 60,
+      "velocity": [
+        0.8,
+        0.0
+      ]
+    },
+    {
+      "id": "left",
+      "frames": 60,
+      "velocity": [
+        0.0,
+        0.35
+      ]
+    },
+    {
+      "id": "backward",
+      "frames": 60,
+      "velocity": [
+        -0.3,
+        0.0
+      ]
+    }
+  ],
+  "source": "Public Unitree walking cycle and command visualization"
+}

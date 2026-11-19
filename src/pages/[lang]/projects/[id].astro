@@ -1,0 +1,44 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import MotionStudio from "../../../components/MotionStudio.astro";
+import SeMoCo from "../../../components/SeMoCo.astro";
+
+import { projects, locales, semoco, type Lang } from "../../../content";
+export function getStaticPaths() {
+  return locales.flatMap((lang) =>
+    projects.map((project) => ({
+      params: { lang, id: project.id },
+      props: { project },
+    })),
+  );
+}
+const lang = Astro.params.lang as Lang,
+  en = lang === "en",
+  p = Astro.props.project;
+---
+
+<Layout lang={lang} title={p.name} description={p.description[en ? 0 : 1]}>
+  <article class="wrap detail">
+    <div class="breadcrumb">
+      <a href={"/" + lang + "/#projects"}>{en ? "Research" : "研究"}</a>{" "}
+      <span>/</span> {p.topic[en ? 0 : 1]}
+    </div>
+    <header class="project-intro">
+    <h1>{p.name}</h1>
+    <p class="deck">{p.description[en ? 0 : 1]}</p>
+    </header>
+    {p.id !== "semoco" && (
+      <a href={"https://github.com/OMEGA-i/"+p.name}>{p.name} · GitHub ↗</a>
+      <MotionStudio
+        lang={lang}
+        initial={p.id === "joystick" ? "reference" : "scene"}
+      />
+    )}
+    {p.id === "semoco" && (
+      <>
+        <p class="links"><a href={semoco.unifiedRepo}>SeMoCo · GitHub ↗</a> <a href={semoco.models}>{en ? "Model weights" : "模型权重"} ↗</a> <a href={semoco.inference}>{en ? "Inference guide" : "推理文档"} ↗</a></p>
+        <SeMoCo lang={lang} />
+      </>
+    )}
+  </article>
+</Layout>

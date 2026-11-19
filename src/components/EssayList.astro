@@ -1,0 +1,11 @@
+---
+import {notes} from "../notes";
+const {lang}=Astro.props, i=lang==="en"?0:1;
+---
+<div class="journal">{notes.map(n=><a href={`/${lang}/blog/${n.slug}/`}>
+  <img src={n.cover} width="1080" height="500" alt="" loading="lazy"/>
+  <span>{n.project}</span><h2>{n.title[i]}</h2><p>{n.summary[i]}</p>
+</a>)}</div>
+<style>
+.journal{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,3vw,48px);margin:20px 0}.journal a{min-width:0}.journal img{width:100%;height:auto;aspect-ratio:2.16;object-fit:cover;border-radius:8px;display:block;margin-bottom:16px}.journal span{font-size:14px;color:var(--accent)}.journal h2{font-size:clamp(24px,2.5vw,40px);font-weight:560;letter-spacing:-.045em;line-height:1.16;margin:8px 0;text-wrap:balance}.journal p{color:var(--muted);max-width:52ch}@media(max-width:680px){.journal{grid-template-columns:1fr;gap:32px}.journal img{aspect-ratio:1.85}}
+</style>

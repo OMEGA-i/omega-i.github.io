@@ -1,0 +1,136 @@
+---
+import "../styles/site.css";
+import { tr, type Lang } from "../content";
+interface Props {
+  lang: Lang;
+  title: string;
+  description?: string;
+}
+const {
+  lang,
+  title,
+  description = "Omni Embodied Generalist AI",
+} = Astro.props;
+const alt = lang === "en" ? "zh" : "en";
+const path = Astro.url.pathname,
+  altPath = path.replace("/" + lang + "/", "/" + alt + "/");
+const t = (en: string, zh: string) => tr(lang, [en, zh]);
+---
+
+<!doctype html>
+<html lang={lang === "zh" ? "zh-CN" : "en"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/omega-avatar.jpg" />
+    <link rel="alternate" hreflang={alt} href={new URL(altPath, Astro.site)} />
+    <title>{title} · OMEGA</title>
+    <script is:inline>
+      try {
+        const pref = localStorage.getItem("theme");
+        if (pref) document.documentElement.dataset.theme = pref;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">
+      {t("Skip to content", "跳至正文")}
+    </a>
+    <header class="mast">
+      <div class="wrap top">
+        <a
+          class="brand"
+          href={"/" + lang + "/"}
+          aria-label={t("OMEGA home", "OMEGA 首页")}
+        >
+          <img width="34" height="34" src="/omega-avatar.jpg" alt="" />
+          OMEGA
+        </a>
+        <nav aria-label={t("Main navigation", "主导航")}>
+          <a
+            class:list={{
+              current: !path.includes("/blog/") && !path.includes("/studio/"),
+            }}
+            href={"/" + lang + "/#projects"}
+          >
+            {t("Research", "研究")}
+          </a>
+          <a
+            href={"/" + lang + "/studio/"}
+            class:list={{ current: path.includes("/studio/") }}
+          >
+            {t("Studio", "实验台")}
+          </a>
+          <a
+            class:list={{ current: path.includes("/blog/") }}
+            href={"/" + lang + "/blog/"}
+          >
+            Blog
+          </a>
+        </nav>
+        <div class="tools">
+          <a href="https://github.com/OMEGA-i" class="github">
+            GitHub ↗
+          </a>
+          <a class="locale" href={altPath} hreflang={alt}>
+            {alt === "zh" ? "中文" : "EN"}
+          </a>
+          <button
+            class="theme"
+            aria-label={t("Switch light or dark theme", "切换明暗主题")}
+            title={t("Switch theme", "切换主题")}
+          >
+            <svg width="17" height="17" viewBox="0 0 20 20" fill="none">
+              <circle
+                cx="10"
+                cy="10"
+                r="7"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+              <path d="M10 3a7 7 0 0 1 0 14Z" fill="currentColor" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="wrap foot">
+      <a class="brand" href={"/" + lang + "/"}>
+        <img width="32" height="32" src="/omega-avatar.jpg" alt="" /> <span>OMEGA</span>
+      </a>
+      <span>Omni Embodied Generalist AI</span>
+      <a href="https://github.com/OMEGA-i">GitHub ↗</a>
+    </footer>
+    <script>
+      const root = document.documentElement;
+      document.querySelector(".theme")?.addEventListener("click", () => {
+        const dark =
+          (root.dataset.theme ||
+            (matchMedia("(prefers-color-scheme:dark)").matches
+              ? "dark"
+              : "light")) === "dark";
+        root.dataset.theme = dark ? "light" : "dark";
+        try {
+          localStorage.setItem("theme", root.dataset.theme);
+        } catch {}
+      });
+      document.querySelector(".locale")?.addEventListener("click", (ev) => {
+        const alternate=new URL((ev.currentTarget as HTMLAnchorElement).href);
+        alternate.search=location.search;
+        alternate.hash=location.hash;
+        (ev.currentTarget as HTMLAnchorElement).href=alternate.href;
+        try {
+          localStorage.setItem(
+            "lang",
+            (ev.currentTarget as HTMLAnchorElement).hreflang,
+          );
+        } catch {}
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,174 @@
+---
+import Architecture from "../../components/Architecture.astro";
+import MotionHero from "../../components/MotionHero.astro";
+import EssayList from "../../components/EssayList.astro";
+
+import Layout from "../../layouts/Layout.astro";
+import { locales, projects, type Lang } from "../../content";
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+const lang = Astro.params.lang as Lang,
+  en = lang === "en";
+---
+
+<Layout lang={lang} title={en ? "Research" : "研究"}>
+  <div class="wrap home">
+    <MotionHero lang={lang} />
+    <section id="projects" aria-labelledby="research">
+      <div class="sectionline">
+        <h2 id="research">{en ? "Research projects" : "研究项目"}</h2>
+      </div>
+      <div class="triptych">
+        {projects.map((p) => (
+          <article class="project-shell">
+            <a
+              class={"project " + p.id}
+              href={"/" + lang + "/projects/" + p.id + "/"}
+            >
+              <div class="imagebox">
+                <img
+                  src={p.cover}
+                  alt={p.alt[en ? 0 : 1]}
+                  width="700"
+                  height="460"
+                />
+                <video
+                  preload="none"
+                  muted
+                  playsinline
+                  loop
+                  data-src={
+                    p.id === "joystick"
+                      ? "/joystick/diagonal.mp4"
+                      : "/previews/" + p.id + ".mp4"
+                  }
+                  aria-hidden="true"
+                ></video>
+              </div>
+              <div class="projecttext">
+                <div class="cardtitle">
+                  <h3>{p.name}</h3>
+                  <span aria-hidden="true">↗</span>
+                </div>
+                <p>{p.description[en ? 0 : 1]}</p>
+              </div>
+            </a>
+            <button
+              class="clip-toggle"
+              type="button"
+              aria-pressed="false"
+              aria-label={
+                en ? "Play " + p.name + " preview" : "播放 " + p.name + " 预览"
+              }
+              data-name={p.name}
+            >
+              <span aria-hidden="true">▶</span>
+            </button>
+          </article>
+        ))}
+      </div>
+    </section>
+    <Architecture lang={lang} />
+    <section class="homeblog">
+      <div class="sectionline">
+        <h2>{en ? "Research notes" : "研究笔记"}</h2>
+        <a href={"/" + lang + "/blog/"}>{en ? "All articles" : "所有文章"} ↗</a>
+      </div>
+      <EssayList lang={lang} />
+    </section>
+  </div>
+</Layout>
+
+<script>
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+  const english = document.documentElement.lang === "en";
+  const stops = new Set<() => void>();
+  for (const shell of document.querySelectorAll<HTMLElement>(
+    ".project-shell",
+  )) {
+    const video = shell.querySelector("video")!,
+      toggle = shell.querySelector<HTMLButtonElement>(".clip-toggle")!;
+    let pinned = false,
+      revision = 0;
+    function state(playing: boolean) {
+      video.classList.toggle("active", playing);
+      toggle.setAttribute("aria-pressed", String(playing));
+      toggle.setAttribute(
+        "aria-label",
+        english
+          ? (playing ? "Pause " : "Play ") + toggle.dataset.name + " preview"
+          : (playing ? "暂停 " : "播放 ") + toggle.dataset.name + " 预览",
+      );
+      toggle.querySelector("span")!.textContent = playing ? "Ⅱ" : "▶";
+    }
+    function stop() {
+      revision++;
+      pinned = false;
+      video.pause();
+      state(false);
+    }
+    stops.add(stop);
+    async function start() {
+      for (const other of stops) if (other !== stop) other();
+      const token = ++revision;
+      if (!video.src) video.src = video.dataset.src!;
+      try {
+        await video.play();
+        if (token === revision) state(true);
+      } catch {
+        if (token === revision) stop();
+      }
+    }
+    toggle.onclick = () => {
+      if (!video.paused) {
+        stop();
+        return;
+      }
+      pinned = true;
+      void start();
+    };
+    shell.onpointerenter = (e) => {
+      if (e.pointerType === "mouse" && !reduce.matches) void start();
+    };
+    shell.onpointerleave = () => {
+      if (!pinned) stop();
+    };
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stop();
+    });
+    reduce.addEventListener("change", () => {
+      if (reduce.matches) stop();
+    });
+  }
+</script>
+<style>
+  .project-shell {
+    position: relative;
+    min-width: 0;
+  }
+  .project-shell .project {
+    height: 100%;
+  }
+  .clip-toggle {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    border: 1px solid #ffffff6b;
+    background: #192a46dc;
+    color: #fff;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .clip-toggle:hover {
+    background: #1d3976;
+  }
+  .clip-toggle span {
+    line-height: 1;
+  }
+</style>

@@ -1,0 +1,36 @@
+---
+import trial from "../../public/inspection/record.json";
+const en=Astro.props.lang==="en",t=(a:string,b:string)=>en?a:b;
+const g1=import.meta.env.PUBLIC_G1_PATROL_MANIFEST || __G1_PATROL_DEV__;
+const manifest=import.meta.env.PUBLIC_A3_PATROL_MANIFEST || __A3_PATROL_DEV__;
+const names={inbound:t("Inbound","收货口"),inventory:t("Inventory","库存区"),dispatch:t("Dispatch","发货口"),dock:t("Dock","充电区")};
+const x=(n:number)=>54+42*n,y=(n:number)=>194-42*n;
+---
+<div class="live-course" data-live-course data-g1={g1} data-a3={manifest} data-layout={JSON.stringify({route:trial.route,racks:trial.racks})} data-names={JSON.stringify(names)} data-lang={en?"en":"zh"}>
+ <div class="mode"><button class="selected" data-recorded aria-pressed="true">{t("Recorded patrol","巡检回放")}</button><button data-design aria-pressed="false">{t("Plan a patrol","自选巡检")}</button></div>
+ <div data-editor hidden>
+  <label class="live-angle">{t("Camera","机位")} <select data-live-angle><option value="chase">{t("Follow camera","第三人称跟随")}</option><option value="eye">{t("Head camera","第一视角")}</option></select></label>
+  <div class="panes"><figure class="eye"><canvas data-eye aria-label={t("Live simulation camera","现场仿真机位")}></canvas><img src="/inspection/a3-start.webp" alt="" data-poster /></figure>
+  <figure class="plan"><figcaption>{t("Patrol map","巡检地图")}</figcaption>
+   <svg data-floor viewBox="-16 -34 385 364" role="group" aria-label={t("Choose inspection stops in visit order","按巡检顺序选择站点")}>
+    <defs><pattern id="livegrid" width="42" height="42" x="12" y="26" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#dbe0e6"/></pattern></defs>
+    <rect x="-16" y="-34" width="385" height="364" fill="#f5f6f8"/><rect x="-16" y="-34" width="385" height="364" fill="url(#livegrid)"/><rect x="33" y="66" width="296" height="147" rx="7" fill="#5379bb" opacity=".07"/>
+    {trial.racks.map(([,cx,cy,hx,hy])=><rect x={x(+cx-Number(hx))} y={y(+cy+Number(hy))} width={+hx*84} height={+hy*84} rx="3" fill="#8d9aa8"/>)}
+    <polyline data-planned fill="none" stroke="#bb553e" stroke-width="2" stroke-dasharray="5 4"/>
+    <polyline data-measured fill="none" stroke="#2853ba" stroke-width="3" stroke-linejoin="round"/>
+    {trial.route.filter(n=>+n[3]>0).map(([id,cx,cy])=><g class:list={["pin",{dock:id==="dock"}]} data-station-id={id} role={id==="dock"?"img":"button"} aria-label={names[id]} tabindex={id==="dock"?undefined:0} transform={`translate(${x(+cx)} ${y(+cy)})`}>
+     <circle r="15" fill="transparent"/><circle class="dot" r="8"/><text class="ordinal" y="3.6"></text><text y="21">{names[id]}</text></g>)}
+    <g data-custom></g><path data-robot-marker d="M9 0 -6 -5 -3 0 -6 5Z" fill="#224aaa" stroke="white" transform={`translate(${x(0)} ${y(0)})`}/>
+   </svg><div class="legend"><span>{t("Planned","计划路线")}</span><span>{t("Measured","实际轨迹")}</span></div></figure></div>
+  <p class="order" data-order></p>
+  <div class="actions"><button data-start-live>{t("Start patrol","执行巡检")}</button><button data-stop-live hidden>{t("Stop","停止")}</button><button data-undo>{t("Undo last stop","撤销上一点")}</button><output data-sim-time>0.00 s</output></div>
+  <p data-status-live role="status">{t("Choose stops on the map. The robot returns to dock after the last one.","按顺序点选地图上的站点或空地。巡检结束后，机器人会返回充电区。")}</p>
+ </div>
+</div>
+<script>
+ import {mountLive} from "../patrol/editor.js";
+ document.querySelectorAll("[data-live-course]").forEach(mountLive);
+</script>
+<style>
+[hidden]{display:none!important}.mode,.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.mode{margin:0 0 14px}.mode button,.actions button{font:550 14px var(--font);cursor:pointer}.mode .selected,.actions [data-start-live]{background:var(--accent);color:var(--bg)}.actions button:disabled{opacity:.5;cursor:default}.panes{display:grid;grid-template-columns:1.6fr 1fr;gap:12px}.panes figure{margin:0;min-width:0;border-radius:10px;overflow:hidden;position:relative}.eye{background:#d6dade;min-height:180px}.eye canvas{position:absolute;inset:0;width:100%;height:100%}.eye img{position:absolute;width:200%;height:200%;max-width:none;left:-100%;top:0}.panes figcaption{position:absolute;left:10px;top:10px;background:#fffef4eb;color:#28303a;font:550 12px var(--font);padding:4px 8px;border-radius:4px;pointer-events:none}.legend{position:absolute;bottom:8px;left:10px;display:flex;gap:12px;padding:4px 7px;border-radius:4px;background:#fffffff0;color:#28303a;font:500 11px var(--font);pointer-events:none}.legend span:before{content:"";display:inline-block;width:16px;border-top:2px dashed #bb553e;margin:0 5px 3px 0}.legend span+span:before{border-top:2px solid #2853ba}.plan svg{display:block;width:100%;height:100%;min-height:220px;cursor:crosshair;touch-action:manipulation;background:#f5f6f8}.pin{cursor:pointer}.pin text,.plan :global(.free-pin text){font:600 11px var(--font);text-anchor:middle;fill:#243348;paint-order:stroke;stroke:#f5f6f8;stroke-width:3px}.pin .dot{fill:#fff;stroke:#2c51a8;stroke-width:2}.pin[aria-pressed=true] .dot,.pin:focus .dot{fill:#3565cf}.pin .ordinal{fill:white;stroke:none;font:600 10px var(--mono)}.dock{cursor:default}.dock .dot{stroke:#526176;rx:2}.actions output{margin-left:auto;font:13px var(--mono)}.order{font-weight:550;margin:15px 0}.live-course [data-status-live]{margin:10px 0 18px;color:var(--muted);font-size:14px}.actions button,.mode button{border:1px solid var(--rule);border-radius:7px;background:var(--paper);color:var(--fg);padding:8px 12px}@media(max-width:680px){.panes{grid-template-columns:1fr}.eye{aspect-ratio:1.82}.plan svg{height:230px}.actions{gap:6px}}
+</style>

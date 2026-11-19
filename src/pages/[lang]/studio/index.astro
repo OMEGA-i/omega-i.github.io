@@ -1,0 +1,27 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import MotionStudio from "../../../components/MotionStudio.astro";
+import { locales, type Lang } from "../../../content";
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+const lang = Astro.params.lang as Lang,
+  en = lang === "en";
+---
+
+<Layout lang={lang} title={en ? "Motion studio" : "运动实验台"}>
+  <article class="wrap detail">
+    <div class="breadcrumb">
+      <a href={"/" + lang + "/"}>OMEGA</a> / Studio
+    </div>
+    <header class="project-intro">
+    <h1>{en ? "Motion studio" : "运动实验台"}</h1>
+    <p class="deck">
+      {en
+        ? "Plan and run a patrol in the showroom with G1 or A3."
+        : "在展厅地图上选点，用 G1 或 A3 执行一次巡检。"}
+    </p>
+    </header>
+    <MotionStudio lang={lang} />
+  </article>
+</Layout>
