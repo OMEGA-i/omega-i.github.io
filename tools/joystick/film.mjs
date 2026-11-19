@@ -4,11 +4,11 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 const browser=await chromium.launch({channel:'chrome'});
 try {
-  const page=await browser.newPage({viewport:{width:960,height:540}});
+  const page=await browser.newPage({viewport:{width:1920,height:1080}});
   await page.goto(new URL('/joystick/samples.json',process.argv[2]).href);
   const samples=await page.evaluate(async()=>{
     const {createScene}=await import('/src/joystick/scene.js');
-    document.body.innerHTML='<main style="width:960px;height:540px"></main>';
+    document.body.innerHTML='<main style="width:1920px;height:1080px"></main>';
     const manifest=await (await fetch('/joystick/samples.json')).json();
     const scene=await createScene(document.querySelector('main'),manifest.jointNames);
     window.loadClip=async(id,body)=>{

@@ -18,20 +18,6 @@ export const projects = [
     ],
   },
   {
-    id: "playground",
-    name: "PlayGround",
-    cover: "/inspection/cover.webp",
-    alt: [
-      "Third-person view of G1 on the warehouse inspection route",
-      "第三人称镜头中的 G1 仓内巡检",
-    ],
-    topic: ["Interactive simulation", "交互仿真"],
-    description: [
-      "Build scenes and tasks in physics simulation, then record how robots move, what they observe and how each task unfolds.",
-      "在物理仿真中搭建场景、设计任务，让机器人与环境交互，同步采集动作、观测和任务结果。",
-    ],
-  },
-  {
     id: "semoco",
     name: "SeMoCo",
     cover: "/phrases/g1/rhythm.webp",
@@ -43,6 +29,26 @@ export const projects = [
     description: [
       "Model motion semantics and body movement separately to generate human motion from text.",
       "将动作语义与身体运动细节分开建模，从文字描述生成连贯的人体动作。",
+    ],
+  },
+  {
+    id: "supermimickit", name: "SuperMimicKit", cover: "/previews/supermimickit-front.webp",
+    alt: ["G1 tracking a turning reference in the showroom", "展厅中 G1 跟踪转身动作，叠加同帧参考姿态"],
+    topic: ["Physics-based tracking", "物理跟踪"],
+    description: ["Follow a whole-body reference under gravity and contact. Watch where the feet land as the robot changes direction.", "在重力和接触约束下跟踪全身动作，观察机器人转向时每一步实际落在哪里。"],
+  },
+  {
+    id: "playground",
+    name: "PlayGround",
+    cover: "/inspection/cover.webp",
+    alt: [
+      "Third-person view of G1 on the warehouse inspection route",
+      "第三人称镜头中的 G1 仓内巡检",
+    ],
+    topic: ["Interactive simulation", "交互仿真"],
+    description: [
+      "Build scenes and tasks in physics simulation, then record how robots move, what they observe and how each task unfolds.",
+      "在物理仿真中搭建场景、设计任务，让机器人与环境交互，同步采集动作、观测和任务结果。",
     ],
   },
 ] as const;

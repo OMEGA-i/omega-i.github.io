@@ -21,6 +21,7 @@ jobs:
       - name: Build static pages with same-origin patrol models
         run: npm run build
         env:
+          PUBLIC_JOYSTICK_MODEL_MANIFEST: /models/joystick/signature.json
           PUBLIC_G1_PATROL_MANIFEST: /models/g1/patrol.json
           PUBLIC_A3_PATROL_MANIFEST: /models/a3/patrol.json
       - name: Download and verify pinned patrol assets
@@ -29,6 +30,9 @@ jobs:
         run: |
           lock=tools/patrol/release-lock.json
           gh release download "$(jq -r .tag "$lock")" --repo "$(jq -r .repo "$lock")" --pattern 'patrol-*-v2.zip' --dir "$RUNNER_TEMP/patrol"
+          gh release download g1-webgpu-v1 --repo OMEGA-i/Joystick --pattern joystick.onnx --pattern signature.json --dir dist/models/joystick
+          (cd dist/models/joystick && sha256sum -c ../../../tools/joystick/browser.sha256)
+          python3 tools/joystick/stage.py dist/models/joystick
           python3 tools/patrol/release.py stage "$RUNNER_TEMP/patrol" dist
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

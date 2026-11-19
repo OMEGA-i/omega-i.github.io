@@ -25,7 +25,7 @@ const live =
     <video data-a3 muted playsinline preload="auto" hidden></video>
     <div class="stage-caption">
       <span class="mode-tag" data-mode>
-        {zh ? "步态参考示意" : "Walking reference preview"}
+        {zh ? "预生成动作" : "Pre-generated motion"}
       </span>
       <strong data-body-name>Unitree G1</strong>
     </div>
@@ -54,7 +54,7 @@ const live =
     </div>
   </div>
   <div class="motion-panel">
-<p>{zh ? "用公开步态演示速度指令和根轨迹。Joystick 模型的生成示例见源码仓库。" : "Explore velocity commands with a public walking reference. The repository includes the Joystick model generation example."} <a href="https://github.com/OMEGA-i/Joystick">GitHub ↗</a></p>
+<p>{zh ? "拖动摇杆，用 BONES-SEED 训练的 G1 模型生成 2.4 秒全身动作。首次生成约需下载 651 MiB。" : "Drag the joystick to generate 2.4 seconds of G1 motion. The BONES-SEED model downloads on first generation (about 651 MiB)."} <a href="https://github.com/OMEGA-i/Joystick/releases/tag/g1-webgpu-v1">Release ↗</a></p>
     <h2>{zh ? "速度指令" : "Velocity command"}</h2>
     <div class="command-row">
       <div class="direction-pad" data-pad aria-hidden="true">

@@ -1,8 +1,8 @@
 ---
 import {mediaUrl} from "../media";
 import ModelSwitch from "./ModelSwitch.astro";
-const clips = Object.fromEntries(["g1","a3"].flatMap(body => ["rhythm","dance"].flatMap(phrase => ["mp4","webp"].map(ext => {
-  const path = "/phrases/" + body + "/" + phrase + "." + ext;
+const clips = Object.fromEntries(["g1","a3"].flatMap(body => ["rhythm","dance"].flatMap(phrase => [".mp4","-720.mp4",".webp"].map(ext => {
+  const path = "/phrases/" + body + "/" + phrase + ext;
   return [path, mediaUrl(path)];
 }))));
 const en = Astro.props.lang === "en";
@@ -10,14 +10,14 @@ const en = Astro.props.lang === "en";
 <section class="semstage" data-semoco data-clips={JSON.stringify(clips)} data-en={String(en)}>
   <header><div><small>{en?"MOTION PHRASE":"动作短语"}</small><h2 data-caption>{en?"Dance in the showroom":"在展厅里跳一段舞"}</h2></div>
   <ModelSwitch control="data-robot" label={en?"Robot":"本体"}/></header>
-  <video controls playsinline preload="metadata" poster={clips["/phrases/g1/rhythm.webp"]} src={clips["/phrases/g1/rhythm.mp4"]} aria-label={en?"Generated dance on the selected robot":"机器人演绎生成的舞步"}></video>
+  <video controls playsinline preload="metadata" poster={clips["/phrases/g1/rhythm.webp"]}  aria-label={en?"Generated dance on the selected robot":"机器人演绎生成的舞步"}><source media="(max-width:720px)" src={clips["/phrases/g1/rhythm-720.mp4"]}/><source src={clips["/phrases/g1/rhythm.mp4"]}/></video>
   <div class="choices" role="group" aria-label={en?"Dance prompt":"舞蹈提示词"}>
     <button type="button" data-phrase="rhythm" aria-pressed="true">{en?"High-knee dance":"提膝摆臂"}</button>
     <button type="button" data-phrase="dance" aria-pressed="false">{en?"Side steps and a turn":"侧步转身"}</button>
   </div>
   <p data-prompt aria-live="polite">{en?"A person dances energetically, rhythmically lifting their knees high and swinging both arms above their head.":"一个人跟着节奏跳舞，高高抬膝，双臂向头顶摆动。"}</p>
   <p>{en?"Generated from text with the legacy 150M model. Both robots replay the same decoded human motion through kinematic retargeting.":"动作由旧版 150M 模型根据文字生成。切换 G1 或 A3，可以看同一段人体动作在两种本体上的运动学回放。"}
-  <a href="https://github.com/OMEGA-i/SeMoCo">{en?"SeMoCo model and examples":"查看 SeMoCo 模型与样例"} ↗</a></p>
+  <a href="https://github.com/OMEGA-i/SeMoCo">{en?"SeMoCo model and examples":"查看 SeMoCo 模型与样例"} ↗</a> · <a href="https://github.com/OMEGA-i/omega-i.github.io/releases/tag/showroom-demos-v1">{en?"Download these dances":"下载本页舞蹈"}</a></p>
 </section>
 <script>
 for (const stage of document.querySelectorAll<HTMLElement>("[data-semoco]")) {
@@ -33,7 +33,7 @@ for (const stage of document.querySelectorAll<HTMLElement>("[data-semoco]")) {
       if (playing) video.play().catch(() => {});
     };
     video.poster = clips[`/phrases/${robot}/${phrase}.webp`];
-    video.src = clips[`/phrases/${robot}/${phrase}.mp4`];
+    video.src = clips[`/phrases/${robot}/${phrase}${matchMedia("(max-width:720px)").matches?"-720":""}.mp4`];
   }
   stage.addEventListener("change", () => switchClip());
   buttons.forEach(button => button.addEventListener("click", () => {

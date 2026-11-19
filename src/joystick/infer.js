@@ -25,29 +25,35 @@ export async function createGenerator(manifestUrl, jointNames, progress) {
     JSON.stringify(spec.jointNames) !== JSON.stringify(jointNames)
   )
     throw new Error("SIGNATURE");
-  const url = new URL(spec.model || "joystick.onnx", absolute);
-  const downloaded = await fetch(url);
-  if (!downloaded.ok) throw new Error("MODEL");
-  const total = Number(downloaded.headers.get("Content-Length"));
   let data;
-  if (
-    total > 0 &&
-    Number.isSafeInteger(total) &&
-    downloaded.body &&
-    !downloaded.headers.get("Content-Encoding")
-  ) {
-    data = new Uint8Array(total);
-    let bytes = 0;
-    const reader = downloaded.body.getReader();
+  if (spec.parts) {
+    let part = 0, received = 0;
+    const compressed = new ReadableStream({
+      async pull(controller) {
+        if (part === spec.parts.length) { controller.close(); return; }
+        const response = await fetch(new URL(spec.parts[part++], absolute));
+        if (!response.ok) throw new Error("MODEL");
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        received += bytes.length;
+        progress("download", received, spec.transferBytes);
+        controller.enqueue(bytes);
+      },
+    });
+    const reader = compressed.pipeThrough(new DecompressionStream("gzip")).getReader();
+    data = new Uint8Array(spec.modelBytes);
+    let offset = 0;
     while (true) {
-      const { value, done } = await reader.read();
+      const {done,value} = await reader.read();
       if (done) break;
-      data.set(value, bytes);
-      bytes += value.byteLength;
-      progress("download", bytes, total);
+      data.set(value,offset);
+      offset += value.length;
     }
-    if (bytes !== total) throw new Error("DOWNLOAD");
-  } else data = new Uint8Array(await downloaded.arrayBuffer());
+    if (offset !== data.length || received !== spec.transferBytes) throw new Error("MODEL_LENGTH");
+  } else {
+    const response = await fetch(new URL(spec.model || "joystick.onnx", absolute));
+    if (!response.ok) throw new Error("MODEL");
+    data = new Uint8Array(await response.arrayBuffer());
+  }
   progress("compile", data.byteLength, data.byteLength);
   ort.env.wasm.numThreads = 1;
   ort.env.wasm.wasmPaths = { wasm: new URL(runtimeWasm, location.href).href };

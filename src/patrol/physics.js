@@ -61,9 +61,10 @@ export async function loadCourse(manifest, signal) {
   }
 }
 
-export function startRun(course, route, capture) {
+export function startRun(course, route, capture, trackReference = false) {
   const { mj, model, cfg, net, gait } = course,
     data = new mj.MjData(model);
+  const reference = trackReference ? new mj.MjData(model) : null;
   const NJ=cfg.qids.length, OBS=3*NJ+6, DIM=cfg.dim;
   const history = new Float32Array(10 * OBS),
     goals = new Float32Array(11 * DIM);
@@ -100,6 +101,15 @@ export function startRun(course, route, capture) {
   cfg.vids.forEach((id, j) => (data.qvel[id] = initial[13 + NJ + j]));
   data.ctrl.set(cfg.default);
   mj.mj_forward(model, data);
+  function alignReference(goal) {
+    if (!reference) return;
+    reference.qpos.set(goal.subarray(0, 7));
+    // The tracker consumes root-relative XY. Overlay both bodies at the measured pelvis XY.
+    reference.qpos.set(data.qpos.subarray(0, 2));
+    cfg.qids.forEach((id,j) => reference.qpos[id] = goal[13+j]);
+    mj.mj_forward(model,reference);
+  }
+  alignReference(initial);
   function observe(action) {
     history.copyWithin(0, OBS);
     const dest = history.subarray(9 * OBS);
@@ -133,6 +143,7 @@ export function startRun(course, route, capture) {
       [Math.cos((11 * Math.PI) / 180), 0, -Math.sin((11 * Math.PI) / 180)],
     );
     return {
+      ...(reference ? {referencePositions:reference.xpos.slice(),referenceRotations:reference.xquat.slice()} : {}),
       linkPositions:data.xpos.slice(),linkRotations:data.xquat.slice(),
       xy: local(q[0], q[1]),
       yaw: yaw(q.subarray(3, 7)) - angle0,
@@ -201,6 +212,7 @@ export function startRun(course, route, capture) {
         data.ctrl[j] = cfg.default[j] + cfg.scale[j] * a[j];
       for (let i = 0; i < 4; i++) mj.mj_step(model, data);
       mj.mj_forward(model, data);
+      alignReference(goals.subarray(DIM,2*DIM));
       observe(a);
       if(capture)capture({state:snapshot(),action:[...a],command:[tick,Math.hypot(goals[7],goals[8]),omega,stage]});
     } finally {
@@ -248,5 +260,5 @@ export function startRun(course, route, capture) {
             : null,
     };
   }
-  return { step, state, dispose: () => data.delete() };
+  return { step, state, dispose() { reference?.delete(); data.delete(); } };
 }

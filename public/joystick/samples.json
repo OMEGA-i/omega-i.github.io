@@ -1,7 +1,83 @@
 {
-  "fps": 25,
-  "robot": "G1",
   "format": "int16le-world-xyz-mm",
+  "fps": 25,
+  "samples": [
+    {
+      "id": "diagonal",
+      "frames": 60,
+      "velocity": [
+        0.8,
+        0.25
+      ],
+      "meanVelocity": [
+        0.8545249700546265,
+        0.26950499415397644
+      ],
+      "endpointError": 0.13666462326468834,
+      "sourceSha256": "f25f52b5e5603c62a71f078b93f1bc7253f8c67271dd8ef17433c2556bafeb3b"
+    },
+    {
+      "id": "idle",
+      "frames": 60,
+      "velocity": [
+        0.0,
+        0.0
+      ],
+      "meanVelocity": [
+        -0.0024747103452682495,
+        0.00013405839854385704
+      ],
+      "endpointError": 0.005848879445376741,
+      "sourceSha256": "6afe97b499cdf87e2b9c61be0446e54791d51496c36c99b7af09815df5c6d8d4"
+    },
+    {
+      "id": "forward",
+      "frames": 60,
+      "velocity": [
+        0.8,
+        0.0
+      ],
+      "meanVelocity": [
+        0.8523759841918945,
+        -0.0040327454917132854
+      ],
+      "endpointError": 0.12397350137812425,
+      "sourceSha256": "ea45c6c154e4c19a088bc0fc630b045312dc4eae324beaebc9f833c73df998e9"
+    },
+    {
+      "id": "left",
+      "frames": 60,
+      "velocity": [
+        0.0,
+        0.35
+      ],
+      "meanVelocity": [
+        -0.0036023613065481186,
+        0.3744332790374756
+      ],
+      "endpointError": 0.05828599265612157,
+      "sourceSha256": "db94db1c132ce8e66d25f10778f143124493bc7cf04912524bb805aaef3767a4"
+    },
+    {
+      "id": "backward",
+      "frames": 60,
+      "velocity": [
+        -0.3,
+        0.0
+      ],
+      "meanVelocity": [
+        -0.31965190172195435,
+        -0.005058872979134321
+      ],
+      "endpointError": 0.04789053201242243,
+      "sourceSha256": "f1a95988238b4156b7d95f3dfd9c30399dda954fb0a0d4591ee7322ebc0c1bc3"
+    }
+  ],
+  "robot": "G1",
+  "sourceCommit": "ee28815",
+  "seed": 7,
+  "initialSource": "230313/idle_loop_001__A267.bvh",
+  "physics": false,
   "jointNames": [
     "pelvis",
     "left_hip_pitch_link",
@@ -67,48 +143,10 @@
     28
   ],
   "xmlSha256": "afdcd26db3cb9c063d981e92c281771e67eecbc9d16306774e32dd282a3a6322",
-  "rotationFormat": "int16le-world-xyzw-snorm",
-  "samples": [
-    {
-      "id": "diagonal",
-      "frames": 60,
-      "velocity": [
-        0.8,
-        0.25
-      ]
-    },
-    {
-      "id": "idle",
-      "frames": 60,
-      "velocity": [
-        0.0,
-        0.0
-      ]
-    },
-    {
-      "id": "forward",
-      "frames": 60,
-      "velocity": [
-        0.8,
-        0.0
-      ]
-    },
-    {
-      "id": "left",
-      "frames": 60,
-      "velocity": [
-        0.0,
-        0.35
-      ]
-    },
-    {
-      "id": "backward",
-      "frames": 60,
-      "velocity": [
-        -0.3,
-        0.0
-      ]
-    }
-  ],
-  "source": "Public Unitree walking cycle and command visualization"
+  "checkpoints": {
+    "root": "adb3fa4b4205d7ce5e093abb0e33e3ee844e512aa8c95fcc3a987d490a53b87a",
+    "pose": "1d611e8a6973fd7e73d7d2eb0f1a2d3f4d8ac0b5d139dd71f8496f39fbc16175",
+    "tokenizer": "ffa3da5e59c9e3be528b603b1957de38f4290bc0f18147e0330eee679f51bb11"
+  },
+  "rotationFormat": "int16le-world-xyzw-snorm"
 }

@@ -11,9 +11,9 @@ test("the architecture shows the full control loop in both languages", async ({
     await page.goto("/" + lang + "/");
     await page.locator(".see-system").click();
     const figure = page.locator("[data-system]");
-    await expect(figure.locator(".flow h3:visible")).toHaveCount(4);
-    await expect(figure.locator("button")).toHaveCount(0);
-    await expect(figure.locator(".planned")).toBeVisible();
+    await expect(figure.locator(".project h3:visible")).toHaveCount(4);
+    await expect(figure.locator(".layer")).toHaveCount(3);
+    await expect(figure.locator(".layer").first().locator(".project")).toHaveCount(2);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

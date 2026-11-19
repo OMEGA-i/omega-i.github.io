@@ -1,0 +1,30 @@
+---
+import ModelSwitch from './ModelSwitch.astro';
+const en=Astro.props.lang==="en";
+const t=(a:string,b:string)=>en?a:b;
+const root="https://github.com/OMEGA-i/SuperMimicKit";
+const courses=root+"/releases/download/courses-20261107/";
+const previews=root+"/releases/download/demo-preview-20261024/";
+---
+<section class="tracker" data-tracker data-en={en} data-g1={import.meta.env.PUBLIC_G1_PATROL_MANIFEST || __G1_PATROL_DEV__} data-a3={import.meta.env.PUBLIC_A3_PATROL_MANIFEST || __A3_PATROL_DEV__}>
+  <div class="stage"><video controls playsinline preload="metadata" poster="/previews/supermimickit-front.webp"></video><canvas hidden></canvas></div>
+  <div class="controls"><ModelSwitch control="tracker-body" label={t("Robot","本体")}/>
+    <label>{t("Motion","动作")} <select><option value="turn">{t("Step and turn","迈步转向")}</option><option value="walk">{t("Walk and stop","直行停步")}</option></select></label>
+    <button data-run>{t("Run tracker","现场试跑")}</button>
+    <label><input type="checkbox" checked data-ghost/>{t("Reference overlay","叠加参考姿态")}</label>
+  </div>
+  <div class="transport" hidden><button data-play>{t("Play","播放")}</button><input type="range" min="0" max="0" value="0" aria-label={t("Frame","逐帧查看")}/><output></output></div>
+  <p role="status"></p>
+  <p>{t("Solid mesh shows physics. Blue shows the target pose aligned at the pelvis in the horizontal plane. Both trackers follow a stride derived from the Unitree walking cycle.", "实色网格是物理执行，蓝色轮廓是按骨盆水平位置对齐的参考姿态。两台机器人使用源自宇树步态周期的参考动作。")}</p>
+</section>
+<section class="weights"><h2>{t("Models and code","模型与代码")}</h2>
+<p><a href={root}>GitHub ↗</a> · <a href="https://github.com/OMEGA-i/omega-i.github.io/releases/tag/showroom-demos-v1">{t("Download motion samples","下载跟踪样例")}</a> · <a href={courses+"inference-runtime.zip"}>{t("Course inference runtime","课程模型推理环境")}</a> · <a href={root+"/blob/main/pretrained/courses-20261107/README.md"}>{t("Validation checkpoints","验证集选出的 checkpoint")}</a></p>
+<table><thead><tr><th>{t("Robot","本体")}</th><th>{t("Course · FP32 weights.pt","课程 · FP32 weights.pt")}</th><th>ONNX · FP32</th></tr></thead><tbody>{["g1","a3","h2","sih2300"].map((body,i)=><tr><th>{body.toUpperCase()}</th><td>{["a_lafan_50k","b_bones_50k","c_lafan25k_bones25k","d_bones25k_lafan25k"].map((c,j)=><a href={courses+body+"-"+c+".zip"}>{["LAFAN","BONES","LAFAN → BONES","BONES → LAFAN"][j]}</a>)}</td><td>{i<3?<a href={previews+"SuperMimicKit-"+body+"-"+["55k5","100k","30k"][i]+"-onnx-fp32.zip"}>{["55.5k","100k","30k"][i]}</a>:"—"}</td></tr>)}</tbody></table>
+</section>
+<script>
+import {mount} from "../tracker/studio";
+document.querySelectorAll("[data-tracker]").forEach(mount);
+</script>
+<style>
+.tracker{margin:2rem 0}.stage{background:var(--tint);aspect-ratio:16/9;overflow:hidden;border-radius:12px}.stage :is(video,canvas){width:100%;height:100%;display:block}.tracker [hidden]{display:none!important}.controls,.transport{display:flex;align-items:center;flex-wrap:wrap;gap:1rem;margin:1rem 0}.controls button,.transport button,.controls select{font:inherit;padding:.5rem .8rem;border-radius:7px;border:1px solid var(--rule);background:var(--paper);color:var(--fg)}.controls button{background:var(--accent);color:var(--bg);cursor:pointer}.transport input{flex:1}.tracker p,.weights p{color:var(--muted);margin:.55rem 0}.weights table{border-collapse:collapse;width:100%;margin:1rem 0}.weights td,.weights th{border-bottom:1px solid var(--rule);padding:.6rem;text-align:left}.weights td a{display:inline-block;margin-right:.8rem}.weights a{color:var(--accent)}
+</style>

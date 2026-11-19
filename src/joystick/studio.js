@@ -42,7 +42,7 @@ export async function mountJoystick(host) {
     if(!useVideo)return;
     if(second.dataset.clip!==recordedId){
       second.dataset.clip=recordedId;
-      second.src="/joystick/a3/"+recordedId+".mp4";
+      second.src="/joystick/a3/"+recordedId+(matchMedia("(max-width:720px)").matches?"-720":"")+".mp4";
     }else if(second.readyState>=1 && Math.abs(second.currentTime-currentFrame/25)>.01){
       second.currentTime=currentFrame/25;
     }
@@ -162,11 +162,11 @@ export async function mountJoystick(host) {
       setFrame(initial ? 36 : 0);
       publishReference({ positions, quaternions }, sample.velocity, "replay");
       mode.textContent = scene.interactive
-        ? t("Walking reference preview", "步态参考示意")
+        ? t("Pre-generated motion", "预生成动作")
         : t("G1 video replay · 3D unavailable", "G1 视频回放 · 3D 不可用");
       const command = sample.velocity.join(" / ") + " m/s";
       showStatus(t("Recorded command · ", "预录指令 · ") + command +
-        (live && !generate ? t(" · First download ≈ 703 MiB", " · 首次生成需下载约 703 MiB") : ""));
+        (live && !generate ? t(" · First download ≈ 651 MiB", " · 首次生成需下载约 651 MiB") : ""));
     } finally {
       if (request === generation) controls(true);
     }

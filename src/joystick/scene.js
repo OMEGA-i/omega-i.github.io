@@ -1,3 +1,4 @@
+import {adaptiveRender} from "../showroom/resolution";
 import {prepareStage, portraitFov, portraitOffset} from "../showroom/lighting.js";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -61,6 +62,7 @@ function groundLine(points, color, width, dashed = false) {
 export async function createScene(element, names) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const renderView=adaptiveRender(renderer);
   const scene = new THREE.Scene();
   prepareStage(scene, renderer, true);
   const camera = new THREE.PerspectiveCamera(portraitFov, 1, 0.03, 60);
@@ -247,7 +249,7 @@ export async function createScene(element, names) {
     render();
   }
   function render() {
-    renderer.render(scene, camera);
+    renderView(scene, camera);
   }
   controls.addEventListener("change", render);
   new ResizeObserver(() => {
@@ -294,7 +296,7 @@ export function createVideoScene(element) {
     interactive: false,
     setMotion(_motion, _frames, _velocity, sample) {
       pendingFrame = 0;
-      video.src = "/joystick/" + sample + ".mp4";
+      video.src = "/joystick/" + sample + (matchMedia("(max-width:720px)").matches?"-720":"") + ".mp4";
     },
     draw(frame) {
       pendingFrame = frame;

@@ -31,9 +31,9 @@ labels.aligned=t("Facing the cross aisle","机身转入横向通道");
 <section class="episode" data-episode data-profiles={JSON.stringify(profiles)} data-labels={JSON.stringify(labels)} data-stations={JSON.stringify(stations)} data-lang={en?"en":"zh"}>
 <header><div><p data-kind>{t("G1 · Recorded physics trial","G1 · 物理执行记录")}</p><h2>{t("A warehouse inspection","一次仓内巡检")}</h2></div>
 <div class="view-controls"><ModelSwitch control="data-model-choice" label={en?"Playback model":"回放本体"}  />
-<label>{t("Camera","机位")}<select aria-label={t("Observation","观测方式")} data-angle>{(en?["Third person","First person + map","Depth · 0–8 m","Ground track","All observations"]:["第三人称","第一视角 + 地图","深度 · 0–8 m","地面轨迹","全部观测"]).map((v,i)=><option value={i} selected={i===1}>{v}</option>)}</select></label></div></header>
+<label>{t("Camera","机位")}<select aria-label={t("Observation","观测方式")} data-angle>{(en?["Third person","First person + map","Depth · 0–8 m","Ground track","All observations"]:["第三人称","第一视角 + 地图","深度 · 0–8 m","地面轨迹","全部观测"]).map((v,i)=><option value={i} selected={i===0}>{v}</option>)}</select></label></div></header>
 <LivePatrol lang={en?"en":"zh"}/>
-<div class="observation" data-view-mode="1"><div class="screen" data-angle="1"><video preload="metadata" muted playsinline src="/inspection/episode.mp4" poster="/inspection/start.webp" aria-label={t("Synchronized camera, depth and trajectory observations","同步相机、深度和轨迹观测")}></video></div>
+<div class="observation" data-view-mode="1"><div class="screen" data-angle="1"><video preload="metadata" muted playsinline  poster="/inspection/start.webp" aria-label={t("Synchronized camera, depth and trajectory observations","同步相机、深度和轨迹观测")}></video></div>
 <figure class="floorplan">
 <figcaption>{t("Inspection route","巡检路线")} <small>{t("Top view · metres","俯视 · 米")}</small></figcaption>
 <svg viewBox="0 0 350 272" role="img" aria-label={t("Measured path and pelvis heading around the warehouse racks","货架周围的实测路线与骨盆朝向")}>
@@ -114,11 +114,11 @@ for(const root of document.querySelectorAll<HTMLElement>("[data-episode]")){
       }
     }
     video.poster=a3?"/inspection/a3-start.webp":"/inspection/start.webp";
-    video.src=a3?"/inspection/a3.mp4":"/inspection/episode.mp4";
+    setSource(id);
     root.querySelector("[data-kind]")!.textContent=id.toUpperCase()+(en?" · Recorded physics trial":" · 物理执行记录");
     root.querySelector("[data-policy]")!.textContent=a3?(en?"A3 follows a retargeted gait with its own a15k tracker.":"A3 使用自身的 a15k 策略跟踪重定向步态。"):(en?"G1 follows a walking cycle with its a45k tracker.":"G1 使用自身的 a45k 策略跟踪步态。");
     root.querySelector("[data-contact]")!.textContent=(en?"Rack contact samples":"货架接触采样数")+" · "+profile.contacts+" / "+profile.samples;
-    video.load();
+
     loadRecord(id);refresh();
   };
   video.addEventListener("loadedmetadata",()=>{
@@ -128,10 +128,22 @@ for(const root of document.querySelectorAll<HTMLElement>("[data-episode]")){
     if(resume)void video.play().catch(()=>{});
   });
   const observation=root.querySelector<HTMLElement>(".observation")!;
-  angle.onchange=()=>{screen.dataset.angle=observation.dataset.viewMode=angle.value;};
+  function setSource(id:string){
+    const n=Number(angle.value),mobile=matchMedia("(max-width:720px)").matches;
+    const path=n<2 ? "/inspection/"+id+"-"+(n===0?"chase":"eye")+(mobile?"-720":"")+".mp4" : "/inspection/"+(id==="a3"?"a3":"episode")+".mp4";
+    screen.dataset.angle=observation.dataset.viewMode=angle.value;
+    if(video.getAttribute("src")!==path)video.src=path;
+  }
+  angle.onchange=()=>{
+    if(pending===null){resume=!video.paused;pending=video.currentTime;}
+    const before=video.src;
+    setSource(model.value);
+    if(before===video.src && video.readyState>=1)pending=null;
+  };
   const query=new URLSearchParams(location.search);
-  const view=["chase","ego","depth","map","all"].indexOf(query.get("view")||"ego");
+  const view=["chase","ego","depth","map","all"].indexOf(query.get("view")||"chase");
   if(view>=0)screen.dataset.angle=observation.dataset.viewMode=angle.value=String(view);
+  setSource(query.get("body")==="a3"?"a3":"g1");
   const time=Number(query.get("t"));
   if(Number.isFinite(time) && time>0){
     const openAt=()=>{video.currentTime=Math.min(time,Number(slider.max));};
@@ -214,4 +226,12 @@ for(const root of document.querySelectorAll<HTMLElement>("[data-episode]")){
 .marks small{font:10px var(--mono);color:var(--muted)}.marks [aria-current],.marks button:hover{color:var(--accent)}
 .map-stop:hover circle:nth-of-type(2),.map-stop:focus circle:nth-of-type(2){fill:#c44a2e;stroke:white}
 @media(max-width:650px){.ruler{height:51px}.marks button span{display:none}.marks small{font-size:9px}.replay-head{gap:6px}.replay-head output{font-size:11px}.episode .cue-menu select{font-size:12px}.episode [data-episode-play]{min-width:48px}.episode .marks button{min-height:26px}}
+</style>
+
+<style>
+.screen:is([data-angle="0"],[data-angle="1"]){aspect-ratio:16/9}
+.screen:is([data-angle="0"],[data-angle="1"]) video{inset:0;width:100%;height:100%}
+.observation[data-view-mode="0"]{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)}
+.observation[data-view-mode="0"] .floorplan{display:flex;flex-direction:column;justify-content:center}
+@media(max-width:680px){.observation[data-view-mode="0"]{grid-template-columns:1fr}}
 </style>

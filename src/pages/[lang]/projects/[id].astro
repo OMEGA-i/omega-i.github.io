@@ -1,6 +1,7 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
 import MotionStudio from "../../../components/MotionStudio.astro";
+import Tracker from "../../../components/Tracker.astro";
 import SeMoCo from "../../../components/SeMoCo.astro";
 
 import { projects, locales, semoco, type Lang } from "../../../content";
@@ -27,12 +28,16 @@ const lang = Astro.params.lang as Lang,
     <h1>{p.name}</h1>
     <p class="deck">{p.description[en ? 0 : 1]}</p>
     </header>
-    {p.id !== "semoco" && (
+    {p.id === "supermimickit" && <Tracker lang={lang} />}
+    {(p.id === "playground" || p.id === "joystick") && (
+      <>
       <a href={"https://github.com/OMEGA-i/"+p.name}>{p.name} · GitHub ↗</a>
+      {p.id === "playground" && <a href="https://github.com/OMEGA-i/PlayGround/releases/tag/showroom-inspection-v1"> · {en?"Recordings and telemetry":"录屏与运行数据"} ↗</a>}
       <MotionStudio
         lang={lang}
         initial={p.id === "joystick" ? "reference" : "scene"}
       />
+      </>
     )}
     {p.id === "semoco" && (
       <>

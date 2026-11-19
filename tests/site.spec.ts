@@ -8,8 +8,9 @@ test("home, direct project links and persistent bilingual navigation", async ({
     await page.goto("/" + lang + "/");
     await expect(page.locator(".project h3")).toHaveText([
       "Joystick",
-      "PlayGround",
       "SeMoCo",
+      "SuperMimicKit",
+      "PlayGround",
     ]);
     expect(
       await page
@@ -18,7 +19,7 @@ test("home, direct project links and persistent bilingual navigation", async ({
           images.every((image) => (image as HTMLImageElement).naturalWidth > 0),
         ),
     ).toBeTruthy();
-    for (const slug of ["joystick", "playground", "semoco"]) {
+    for (const slug of ["joystick", "supermimickit", "playground", "semoco"]) {
       const response = await page.goto("/" + lang + "/projects/" + slug + "/");
       expect(response?.status()).toBe(200);
       await expect(page.locator("h1")).toBeVisible();
@@ -50,6 +51,7 @@ test("mobile offline from the lab and without WebGPU", async ({
   for (const path of [
     "/zh/",
     "/zh/projects/joystick/",
+    "/zh/projects/supermimickit/",
     "/zh/projects/playground/",
     "/zh/projects/semoco/",
     "/zh/blog/simulation-data/",
@@ -84,7 +86,7 @@ test("recorded Joystick commands preserve their identity when inputs change", as
   await preset.selectOption("backward");
   await expect(page.locator("[data-status]")).toContainText("-0.3 / 0");
   await expect(page.locator("[data-joystick] [data-mode]")).toHaveText(
-    "Walking reference preview",
+    "Pre-generated motion",
   );
   await page.locator("[data-body]").getByRole("radio",{name:"A3"}).check();
   await expect(page.locator("[data-view][data-avatar=a3] canvas")).toBeVisible();

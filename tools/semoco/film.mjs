@@ -7,7 +7,7 @@ const [origin, body, poses, movie, mode] = process.argv.slice(2);
 const track = JSON.parse(await readFile(poses,'utf8'));
 const browser = await chromium.launch({channel:'chrome'});
 try {
-  const page = await browser.newPage({viewport:{width:960,height:540}});
+  const page = await browser.newPage({viewport:{width:1920,height:1080}});
   await page.goto(new URL('/inspection/warehouse-layout.json',origin).href);
   await page.evaluate(async ({body,track,mode})=>{
     document.body.innerHTML='<canvas></canvas>';
@@ -21,7 +21,7 @@ try {
     const canvas=document.querySelector('canvas');
     const renderer=new T.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});
     prepareStage(scene,renderer);
-    renderer.setSize(960,540);
+    renderer.setSize(1920,1080);
     const cam=new T.PerspectiveCamera(portraitFov,16/9,.03,60);
     cam.up.set(0,0,1);
     const robot=(await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(body==='g1'?'/joystick/g1.glb':'/joystick/a3/robot.glb')).scene;
