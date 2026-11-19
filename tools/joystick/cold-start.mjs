@@ -7,6 +7,8 @@ const browser=await chromium.launch({channel:'chrome'});
 try {
   const page=await browser.newPage({viewport:{width:1280,height:800}});
   await page.goto(new URL('/en/projects/joystick/'+(delivery?'?delivery='+delivery:''),origin).href);
+  page.on('requestfailed',r=>console.error('Request failed',r.url(),r.failure()?.errorText));
+  page.on('response',r=>{if(r.status()>=400) console.error(r.status(),r.url());});
   const studio=page.locator('[data-joystick]');
   const manifest=await studio.getAttribute('data-model');
   assert.match(manifest,/joystick-mixed-v1/);

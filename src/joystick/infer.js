@@ -35,14 +35,14 @@ export async function createGenerator(manifestUrl, jointNames, progress) {
   }).catch(error=>({error}));
   let data;
   if (spec.parts) {
-    const useMirror=spec.mirror && new URLSearchParams(location.search).get("delivery")==="mirror";
+    const useMirror=spec.mirror && new URLSearchParams(location.search).get("delivery")!=="pages";
     async function load(source, base, concurrency) {
       let part=0, requested=0, received=0;
       const pending=[], controller=new AbortController();
       clock.networkStart=performance.now();
       async function fetchPart(i) {
         const response=await fetch(new URL(source.parts[i],base),{
-          signal:AbortSignal.any([controller.signal,AbortSignal.timeout(90000)]),
+          signal:AbortSignal.any([controller.signal,AbortSignal.timeout(300000)]),
         });
         if(!response.ok)throw Error("MODEL");
         const bytes=new Uint8Array(await response.arrayBuffer());
