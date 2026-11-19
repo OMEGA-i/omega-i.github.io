@@ -28,7 +28,9 @@ const layers = [
       <div class="research-layers plate">
       {layers.map(({title,group},level)=>(
         <section class="layer"><header><small>0{level+1}</small><h3>{title}</h3>
-        {level===0 && <p>{en?"Joystick outputs robot motion. SeMoCo human motion passes through retargeting before tracking.":"Joystick 直接输出机器人参考动作。SeMoCo 生成的人体动作经重定向后可供机器人跟踪。"}</p>}</header>
+        {level===0 && <p>{en?"Joystick outputs robot motion. SeMoCo human motion passes through retargeting before tracking.":"Joystick 直接输出机器人参考动作。SeMoCo 生成的人体动作经重定向后可供机器人跟踪。"}</p>}
+        {level===1 && <p>{en?"Motion reference + measured body state → joint controls":"参考动作与实时身体状态 → 关节控制"}</p>}
+        {level===2 && <p>{en?"Policy + task → actions, observations and outcomes":"策略与任务 → 动作、观测与任务结果"}</p>}</header>
         <div class="project-row">{group.map((p) => (
           <article class="project-shell">
             <a
@@ -154,6 +156,8 @@ const layers = [
 <style>
 .research-layers{background:var(--bg);border-bottom:1px solid var(--rule)}
 .layer{display:grid;grid-template-columns:minmax(160px,1fr) 3fr;gap:clamp(16px,3vw,52px);border-top:1px solid var(--rule);padding:24px 0}
+.layer header{position:relative;padding-left:18px}.layer header:before{content:"";position:absolute;left:0;top:.4rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+@media(min-width:721px){.layer:not(:last-child) header:after{content:"";position:absolute;top:1.3rem;bottom:-42px;left:2px;border-left:1px solid var(--rule)}}
 .layer header small{font:500 .8rem var(--mono);color:var(--accent)}
 .layer header h3{margin:.45em 0;font-size:clamp(1.2rem,2vw,1.8rem);line-height:1.2}
 .layer header p{color:var(--muted);font-size:.92rem;line-height:1.6}
