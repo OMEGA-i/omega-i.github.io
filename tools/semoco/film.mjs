@@ -1,15 +1,15 @@
 // Run against the Astro dev server. Advance one decoded frame per image.
 import { chromium } from '@playwright/test';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-const [origin, body, poses, movie] = process.argv.slice(2);
+const [origin, body, poses, movie, mode] = process.argv.slice(2);
 const track = JSON.parse(await readFile(poses,'utf8'));
 const browser = await chromium.launch({channel:'chrome'});
 try {
   const page = await browser.newPage({viewport:{width:960,height:540}});
   await page.goto(new URL('/inspection/warehouse-layout.json',origin).href);
-  await page.evaluate(async ({body,track})=>{
+  await page.evaluate(async ({body,track,mode})=>{
     document.body.innerHTML='<canvas></canvas>';
     document.body.style.margin='0';
     const T=await import('/node_modules/.vite/deps/three.js');
@@ -36,7 +36,15 @@ try {
 
     const [x,y,,w,qx,qy,qz]=track.frames[0][pelvis];
     const yaw=Math.atan2(2*(w*qz+qx*qy),1-2*(qy*qy+qz*qz));
-    const offset=portraitOffset(h,yaw);
+    // Homepage stills look across the central aisle toward the dining set.
+    const offset=mode==="poster" ? new T.Vector3(3.1,1.75,.67) : portraitOffset(h,yaw);
+    if (track.path) {
+      const points=track.path.map(([x,y])=>new T.Vector3(x,y,.022));
+      const geometry=new T.BufferGeometry().setFromPoints(points);
+      scene.add(new T.Line(geometry,new T.LineBasicMaterial({color:0x2455ce})));
+      const direction=new T.Vector3(...track.velocity,0);
+      scene.add(new T.ArrowHelper(direction.clone().normalize(),new T.Vector3(0,.13,.027),direction.length()*2,0xc44335,.13,.1));
+    }
     cam.position.set(x,y,h).add(offset);
     cam.lookAt(x,y,h);
     window.drawFrame=i=>{
@@ -48,15 +56,20 @@ try {
         node.quaternion.set(qx,qy,qz,w).multiply(basis);
       });
       renderer.render(scene,cam);
-      return canvas.toDataURL('image/jpeg',.94).split(',')[1];
+      return canvas.toDataURL(mode==='poster'?'image/webp':'image/jpeg',.94).split(',')[1];
     };
-  },{body,track});
-  const encoder=spawn('ffmpeg',['-loglevel','error','-y','-f','image2pipe','-r',String(track.fps),'-i','-','-c:v','libx264','-crf','19','-pix_fmt','yuv420p','-movflags','+faststart',movie],{stdio:['pipe','inherit','inherit']});
-  const done=once(encoder,'close');
-  for(let i=0;i<track.frames.length;i++){
-    const frame=await page.evaluate(i=>window.drawFrame(i),i);
-    if(!encoder.stdin.write(Buffer.from(frame,'base64')))await once(encoder.stdin,'drain');
+  },{body,track,mode});
+  if(mode==="poster"){
+    const frame=await page.evaluate(()=>window.drawFrame(0));
+    await writeFile(movie,Buffer.from(frame,"base64"));
+  } else {
+    const encoder=spawn('ffmpeg',['-loglevel','error','-y','-f','image2pipe','-r',String(track.fps),'-i','-','-c:v','libx264','-crf','19','-pix_fmt','yuv420p','-movflags','+faststart',movie],{stdio:['pipe','inherit','inherit']});
+    const done=once(encoder,'close');
+    for(let i=0;i<track.frames.length;i++){
+      const frame=await page.evaluate(i=>window.drawFrame(i),i);
+      if(!encoder.stdin.write(Buffer.from(frame,'base64')))await once(encoder.stdin,'drain');
+    }
+    encoder.stdin.end();
+    if((await done)[0])throw Error('Movie encoding failed');
   }
-  encoder.stdin.end();
-  if((await done)[0])throw Error('Movie encoding failed');
 } finally {await browser.close();}
