@@ -8,34 +8,61 @@ const steps=[[45,30,45,50],[15,25,30,40],[20,40,35,50],[20,15,35,35]];
 const previews=root+"/releases/download/demo-preview-20261024/";
 ---
 <section class="tracker" data-tracker data-en={en} data-g1={import.meta.env.PUBLIC_G1_PATROL_MANIFEST || __G1_PATROL_DEV__} data-a3={import.meta.env.PUBLIC_A3_PATROL_MANIFEST || __A3_PATROL_DEV__}>
-  <div class="stage"><button class="fullscreen" data-full aria-label={t("Fullscreen","全屏")}>⛶</button><video controls playsinline preload="metadata" poster="/previews/supermimickit-front.webp"></video><canvas hidden tabindex="0" aria-label={t("Interactive robot. Drag the background to orbit, Space to pause.","交互机器人。拖动背景旋转视角，空格暂停。")}></canvas></div>
-  <div class="controls"><ModelSwitch control="tracker-body" label={t("Robot","本体")}/>
-    <label>{t("Motion","动作")} <select><option value="turn">{t("Step and turn","迈步转向")}</option><option value="walk">{t("Walk and stop","直行停步")}</option></select></label>
-    <button data-inspect>{t("Explore in 3D","自由观察")}</button>
-    <button data-run>{t("Run tracker","现场试跑")}</button>
-    <label><input type="checkbox" checked data-ghost/>{t("Reference overlay","叠加参考姿态")}</label>
-    <button data-push hidden>{t("Push sideways","侧向推一下")} <span data-force></span></button>
+  <div class="stage">
+    <video controls playsinline preload="metadata" poster="/previews/supermimickit-front.webp"></video>
+    <canvas hidden tabindex="0" aria-label={t("Orbit the robot or drag a link in live physics","拖动背景环绕观察，在现场仿真中拖动机器人施加外力")}></canvas>
+    <div class="scene-head">
+      <div class="scene-label"><i></i><span data-phase>{t("Motion replay","动作回放")}</span></div>
+      <div class="scene-tools"><ModelSwitch control="tracker-body" label={t("Robot","本体")}/><button data-full aria-label={t("Fullscreen","全屏")} title={t("Fullscreen","全屏")}>⛶</button></div>
+    </div>
+    <div class="experiments" aria-label={t("Physics experiments","物理实验")}>
+      <button data-experiment="balance">{t("Balance recovery","平衡恢复")}</button>
+      <button data-experiment="ice">{t("Slippery floor","低摩擦地面")}</button>
+      <button data-experiment="passive">{t("Policy off","关闭驱动")}</button>
+    </div>
+    <div class="pull" hidden data-pull></div>
+    <div class="hud"><span data-clock>0.00 s</span><span data-force></span></div>
   </div>
-  <div class="transport" hidden><button data-reset>{t("Reset","复位")}</button><button data-play>{t("Play","播放")}</button><input type="range" min="0" max="0" value="0" aria-label={t("Frame","逐帧查看")}/><output></output></div>
-  <p role="status"></p>
-  <p>{t("Drag the background to orbit. During a live run, drag and release a robot link to push it. Solid mesh shows physics. Blue shows the target pose aligned at the pelvis in the horizontal plane. Both trackers follow a stride derived from the Unitree walking cycle.", "拖动背景旋转视角。试跑中拖动机器人再松手，可以观察它如何恢复平衡。实色网格是物理执行，蓝色轮廓是按骨盆水平位置对齐的参考姿态。两台机器人使用源自宇树步态周期的参考动作。")}</p>
+  <div class="dock">
+    <div class="motions" aria-label={t("Motion","动作")}>
+      <button data-motion="turn" aria-pressed="true">{t("Step & turn","迈步转向")}</button>
+      <button data-motion="walk" aria-pressed="false">{t("Walk & stop","直行停步")}</button>
+    </div>
+    <div class="actions">
+      <button data-run>{t("Run tracker","现场试跑")}</button><button data-inspect>{t("Replay in 3D","三维回放")}</button>
+      <button data-push hidden>{t("Push sideways","侧向推一下")}</button>
+      <details class="settings"><summary>{t("Controls","控制参数")}</summary>
+        <div class="panel"><label><input type="checkbox" data-ghost/>{t("Reference pose","参考姿态")}</label>
+        <label><input type="checkbox" checked data-policy/>{t("Policy actuation","策略驱动")}</label>
+        <label class="surface">{t("Surface friction","地面摩擦")} <output data-mu>1.00×</output>
+        <input type="range" data-friction min=".1" max="1.7" step=".05" value="1" /></label>
+        <p>{t("Policy and friction apply to live physics.","策略和摩擦参数用于现场物理仿真。")}</p></div>
+      </details>
+    </div>
+  </div>
+  <div class="transport" hidden><button data-reset>{t("Reset","复位")}</button><button data-play>{t("Play","播放")}</button><input data-timeline type="range" min="0" max="0" value="0" aria-label={t("Frame","逐帧查看")}/><output data-time></output></div>
+  <div class="foot"><p role="status"></p><p>{t("Drag the scene to orbit. In live physics, pull a link and release.","拖动场景环绕观察。现场试跑时，拖住机器人再松手施力。")}</p></div>
 </section>
-<section class="weights"><h2>{t("Models and code","模型与代码")}</h2>
+<details class="weights"><summary>{t("Models, recordings and code","模型、录屏与代码")}</summary>
 <p><a href={root}>GitHub ↗</a> · <a href="https://github.com/OMEGA-i/omega-i.github.io/releases/tag/showroom-demos-v1">{t("Download motion samples","下载跟踪样例")}</a> · <a href={courses+"inference-runtime.zip"}>{t("Course inference runtime","课程模型推理环境")}</a> · <a href={root+"/blob/main/pretrained/courses-20261107/README.md"}>{t("Validation checkpoints","验证集选出的 checkpoint")}</a></p>
 <table><thead><tr><th>{t("Robot","本体")}</th><th>{t("Course · FP32 weights.pt","课程 · FP32 weights.pt")}</th><th>ONNX · FP32</th></tr></thead><tbody>{["g1","a3","h2","sih2300"].map((body,i)=><tr><th>{body.toUpperCase()}</th><td>{["a_lafan_50k","b_bones_50k","c_lafan25k_bones25k","d_bones25k_lafan25k"].map((c,j)=><a href={courses+body+"-"+c+".zip"}>{["LAFAN","BONES","LAFAN → BONES","BONES → LAFAN"][j]} · {steps[i][j]}k</a>)}</td><td>{i<3?<a href={previews+"SuperMimicKit-"+body+"-"+["55k5","100k","30k"][i]+"-onnx-fp32.zip"}>{["55.5k","100k","30k"][i]}</a>:"—"}</td></tr>)}</tbody></table>
-</section>
+</details>
 <script>
 import {mount} from "../tracker/studio";
 document.querySelectorAll("[data-tracker]").forEach(mount);
 </script>
 <style>
-.tracker{margin:2rem 0}.stage{background:var(--tint);aspect-ratio:16/9;overflow:hidden;border-radius:12px}.stage :is(video,canvas){width:100%;height:100%;display:block}.tracker [hidden]{display:none!important}.controls,.transport{display:flex;align-items:center;flex-wrap:wrap;gap:1rem;margin:1rem 0}.controls button,.transport button,.controls select{font:inherit;padding:.5rem .8rem;border-radius:7px;border:1px solid var(--rule);background:var(--paper);color:var(--fg)}.controls button{background:var(--accent);color:var(--bg);cursor:pointer}.transport input{flex:1}.tracker p,.weights p{color:var(--muted);margin:.55rem 0}.weights table{border-collapse:collapse;width:100%;margin:1rem 0}.weights td,.weights th{border-bottom:1px solid var(--rule);padding:.6rem;text-align:left}.weights td a{display:inline-block;margin-right:.8rem}.weights a{color:var(--accent)}
-.stage canvas{touch-action:none;cursor:grab}.stage canvas:active{cursor:grabbing}.controls [data-inspect],.controls [data-push]{background:var(--paper);color:var(--fg)}
+.tracker{--ice:#f4f6fa;--ink:#162439;--line:#ccd2db;margin:1.4rem 0 2rem;color:var(--ink);background:var(--ice);border-radius:18px;border:1px solid var(--line);position:relative}
+.stage{height:clamp(340px,49vw,640px);position:relative;isolation:isolate;overflow:hidden;border-radius:17px 17px 0 0;background:#e2e5e8}
+.stage canvas,.stage video{display:block;width:100%;height:100%;object-fit:contain}.stage canvas{touch-action:none;cursor:grab}.stage canvas:active{cursor:grabbing}
+.scene-head,.hud{position:absolute;z-index:2;left:18px;right:18px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}.scene-head{top:16px;align-items:flex-start}.scene-tools{display:flex;gap:8px;align-items:center;pointer-events:auto}.scene-label,.hud span,.scene-tools button{background:#fffffff0;color:var(--ink);padding:7px 12px;border-radius:20px;font:600 12px/1.4 var(--font);box-shadow:0 1px 5px #1922371a}.scene-label{display:flex;align-items:center;gap:7px}.scene-label i{width:7px;height:7px;border-radius:50%;background:#586a80}.tracker[data-mode=live] .scene-label i{background:#d94f35}.scene-tools button{border:0;font-size:20px;line-height:21px;cursor:pointer}.scene-tools :global(.caption){display:none}.hud{bottom:14px}.hud span{font-family:var(--mono);font-variant-numeric:tabular-nums}.hud span:empty{display:none}.tracker[data-mode=recorded] .hud{display:none}
+.dock,.transport,.foot{padding:12px clamp(14px,2vw,26px);display:flex;align-items:center;justify-content:space-between;gap:12px}.dock{border-top:1px solid var(--line)}.motions,.actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.tracker button,.settings summary,.weights summary{cursor:pointer}.dock button,.settings summary,.transport button{border:1px solid transparent;background:transparent;color:var(--ink);font:600 14px var(--font);padding:8px 12px;border-radius:30px;min-height:36px}.motions{border:1px solid var(--line);border-radius:24px;padding:3px;gap:0}.motions [aria-pressed=true]{background:#fff;box-shadow:0 1px 4px #15213930}.actions [data-run]{background:#214bb8;color:#fff}.actions [data-push]{border-color:#bd614c}.settings{position:relative}.settings summary{list-style:none;background:#e8ecf1}.panel{position:absolute;z-index:5;bottom:calc(100% + 8px);right:0;width:212px;background:#fffffff5;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 8px 32px #11182726}.panel label{display:flex;align-items:center;gap:8px;padding:.4em 0}.panel input{accent-color:#2453c3}.surface{display:flex;flex-wrap:wrap}.surface input{width:100%}.panel p,.foot p{margin:0;font-size:.82rem;line-height:1.5;color:#4c5665}.transport{border-top:1px solid var(--line);justify-content:flex-start}.transport input{flex:1;min-width:24px;accent-color:#2453c3}.transport output{min-width:50px;font:12px var(--mono)}.foot{border-top:1px solid var(--line);align-items:start}.tracker [hidden]{display:none!important}.pull{position:absolute;z-index:1;height:3px;background:#df603e;transform-origin:0 50%;pointer-events:none}.pull:after{content:"";position:absolute;right:-3px;top:-3px;width:9px;height:9px;border-radius:50%;background:#d94426}.tracker:fullscreen{overflow:auto;border-radius:0}.tracker:fullscreen .stage{height:calc(100dvh - 180px)}.weights{margin:2rem 0}.weights summary{font-weight:650}.weights table{width:100%;border-collapse:collapse}.weights th,.weights td{text-align:left;padding:.6rem;border-bottom:1px solid var(--rule)}.weights a{color:var(--accent);margin-right:.6em}.weights p{margin:1rem 0}
+@media(max-width:720px){.dock,.foot{align-items:start;flex-direction:column}.actions{width:100%;gap:2px}.actions .settings{margin-left:auto}.stage{height:clamp(320px,83vw,460px)}.scene-head,.hud{left:10px;right:10px}.scene-tools{gap:4px}.dock button,.settings summary{font-size:13px;padding:7px 10px}}
+:global(html[data-theme=dark]) .tracker{--ice:#26282d;--line:#424650;--ink:#f1f2f4}:global(html[data-theme=dark]) .tracker :is(.panel,.scene-label,.scene-tools button,.hud span,.motions [aria-pressed=true],.settings summary){background:#333840;color:#f4f5f7}:global(html[data-theme=dark]) .tracker :is(.panel p,.foot p){color:#c5cbd3}
 
-.tracker{border:1px solid var(--rule);border-radius:16px;overflow:hidden;background:var(--paper)}
-.stage{position:relative;border-radius:0}.fullscreen{position:absolute;z-index:1;right:12px;top:12px;border:0;border-radius:50%;width:40px;height:40px;background:#202632dc;color:white;font-size:23px;cursor:pointer}
-.controls,.transport{margin:0;padding:12px clamp(12px,2vw,24px);border-bottom:1px solid var(--rule)}
-.controls{background:var(--tint);gap:clamp(8px,1.3vw,22px)}.controls select{max-width:100%}.controls :is(button,select){min-height:38px}.controls [data-run]{font-weight:650}
-.tracker p{padding-inline:clamp(12px,2vw,24px)}.tracker [role=status]{font-weight:600;color:var(--fg)}.tracker p:last-child{padding-bottom:.75rem;font-size:.9rem}
-.tracker:fullscreen{overflow:auto;border-radius:0}.tracker:fullscreen .stage{height:70vh;aspect-ratio:auto}.tracker:fullscreen video{object-fit:contain}
+.experiments{position:absolute;z-index:2;bottom:16px;left:50%;transform:translateX(-50%);display:flex;background:#202836eb;padding:4px;border-radius:24px;box-shadow:0 3px 18px #1118272b;gap:2px}
+.experiments button{border:0;border-radius:18px;background:transparent;color:#f7f8fb;padding:8px 14px;font:550 13px var(--font);white-space:nowrap}.experiments button:hover,.experiments [aria-pressed=true]{background:#fff;color:#172638}.experiments button:disabled{opacity:.6}
+@media(max-width:580px){.experiments{bottom:10px}.experiments button{font-size:12px;padding:6px 9px}.hud{bottom:54px}}
+
+.tracker[data-mode=inspect] [data-inspect]{display:none}.tracker .transport{padding-top:7px;padding-bottom:7px}.transport button{font-size:.80rem}
 </style>

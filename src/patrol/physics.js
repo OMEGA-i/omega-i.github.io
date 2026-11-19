@@ -157,6 +157,16 @@ export function startRun(course, route, capture, trackReference = false) {
       holding: held > 0 && route[stage]?.[3] > 0,
     };
   }
+  const friction = trackReference ? model.geom_friction.slice() : null;
+  function setSurface(multiplier) {
+    if (!friction) return;
+    for (let i=0;i<friction.length;i+=3) model.geom_friction[i]=friction[i]*multiplier;
+  }
+  function enablePolicy(enabled) {
+    const flag=mj.mjtDisableBit.mjDSBL_ACTUATION.value;
+    if(enabled) model.opt.disableflags &= ~flag;
+    else model.opt.disableflags |= flag;
+  }
   let impulseTicks = 0;
   function pushLink(link, force) {
     data.xfrc_applied.fill(0);
@@ -267,5 +277,5 @@ export function startRun(course, route, capture, trackReference = false) {
             : null,
     };
   }
-  return { step, state, pushLink, dispose() { reference?.delete(); data.delete(); } };
+  return { step, state, pushLink, setSurface, enablePolicy, dispose() { reference?.delete(); data.delete(); } };
 }

@@ -25,53 +25,82 @@ export async function createGenerator(manifestUrl, jointNames, progress) {
     JSON.stringify(spec.jointNames) !== JSON.stringify(jointNames)
   )
     throw new Error("SIGNATURE");
+  const clock = window.__joystickTimings = { manifestReady:performance.now() };
+  const wasmUrl = new URL(runtimeWasm,location.href).href;
+  const runtime = fetch(wasmUrl).then(async response=>{
+    if(!response.ok) throw Error("WASM");
+    const binary=await response.arrayBuffer();
+    clock.runtimeReady=performance.now();
+    return binary;
+  }).catch(error=>({error}));
   let data;
   if (spec.parts) {
-    let part = 0, received = 0;
-    // Keep at most three compressed fragments in flight, consuming them in graph order.
-    const pending = [];
-    let requested = 0;
-    const fetchPart = async name => {
-      const response = await fetch(new URL(name, absolute));
-      if (!response.ok) throw new Error("MODEL");
-      return new Uint8Array(await response.arrayBuffer());
-    };
-    const compressed = new ReadableStream({
-      async pull(controller) {
-        if (part === spec.parts.length) { controller.close(); return; }
-        while (pending.length < 3 && requested < spec.parts.length) {
-          pending.push(fetchPart(spec.parts[requested++]).catch(error=>({error})));
+    const useMirror=spec.mirror && new URLSearchParams(location.search).get("delivery")==="mirror";
+    async function load(source, base, concurrency) {
+      let part=0, requested=0, received=0;
+      const pending=[], controller=new AbortController();
+      clock.networkStart=performance.now();
+      async function fetchPart(i) {
+        const response=await fetch(new URL(source.parts[i],base),{
+          signal:AbortSignal.any([controller.signal,AbortSignal.timeout(90000)]),
+        });
+        if(!response.ok)throw Error("MODEL");
+        const bytes=new Uint8Array(await response.arrayBuffer());
+        clock.lastNetworkByte=performance.now();
+        if(source.hashes){
+          const hash=new Uint8Array(await crypto.subtle.digest("SHA-256",bytes));
+          const hex=Array.from(hash,b=>b.toString(16).padStart(2,"0")).join("");
+          if(hex!==source.hashes[i])throw Error("MODEL_DIGEST");
         }
-        const bytes = await pending.shift();
-        if (bytes.error) throw bytes.error;
-        part++;
-        received += bytes.length;
-        progress("download", received, spec.transferBytes);
-        controller.enqueue(bytes);
-      },
-    });
-    const reader = compressed.pipeThrough(new DecompressionStream("gzip")).getReader();
-    data = new Uint8Array(spec.modelBytes);
-    let offset = 0;
-    while (true) {
-      const {done,value} = await reader.read();
-      if (done) break;
-      data.set(value,offset);
-      offset += value.length;
+        received+=bytes.length;
+        progress("download",received,spec.transferBytes);
+        return bytes;
+      }
+      const compressed=new ReadableStream({
+        async pull(stream){
+          if(part===source.parts.length){stream.close();return;}
+          while(pending.length<concurrency && requested<source.parts.length)
+            pending.push(fetchPart(requested++).catch(error=>({error})));
+          const chunk=await pending.shift();
+          if(chunk.error)throw chunk.error;
+          part++;stream.enqueue(chunk);
+        }
+      });
+      try{
+        const reader=compressed.pipeThrough(new DecompressionStream("gzip")).getReader();
+        const expanded=new Uint8Array(spec.modelBytes);
+        let offset=0;
+        while(true){
+          const {done,value}=await reader.read();
+          if(done)break;
+          expanded.set(value,offset);offset+=value.length;
+        }
+        if(offset!==expanded.length || received!==spec.transferBytes)throw Error("MODEL_LENGTH");
+        return expanded;
+      }finally{controller.abort();}
     }
-    if (offset !== data.length || received !== spec.transferBytes) throw new Error("MODEL_LENGTH");
+    clock.delivery=useMirror?"mirror":"pages";
+    if(useMirror){
+      try{data=await load(spec.mirror,spec.mirror.base,12);}
+      catch(error){clock.delivery="pages-fallback";data=await load(spec,absolute,6);}
+    }else data=await load(spec,absolute,6);
   } else {
-    const response = await fetch(new URL(spec.model || "joystick.onnx", absolute));
-    if (!response.ok) throw new Error("MODEL");
-    data = new Uint8Array(await response.arrayBuffer());
+    const response=await fetch(new URL(spec.model || "joystick.onnx",absolute));
+    if(!response.ok)throw Error("MODEL");
+    data=new Uint8Array(await response.arrayBuffer());
   }
-  progress("compile", data.byteLength, data.byteLength);
-  ort.env.wasm.numThreads = 1;
-  ort.env.wasm.wasmPaths = { wasm: new URL(runtimeWasm, location.href).href };
-  const session = await ort.InferenceSession.create(data, {
-    executionProviders: ["webgpu"],
-    graphOptimizationLevel: "all",
+  clock.inflated=performance.now();
+  progress("compile",data.byteLength,data.byteLength);
+  ort.env.wasm.numThreads=1;
+  ort.env.wasm.wasmPaths={wasm:wasmUrl};
+  const wasm=await runtime;
+  if(wasm.error)throw wasm.error;
+  ort.env.wasm.wasmBinary=wasm;
+  clock.sessionStart=performance.now();
+  const session=await ort.InferenceSession.create(data,{
+    executionProviders:["webgpu"],graphOptimizationLevel:"all",
   });
+  clock.sessionReady=performance.now();
   return async (vx, vy) => {
     const idx = spec.categories.indexOf(category(vx, vy));
     if (idx < 0) throw new Error("CATEGORY");

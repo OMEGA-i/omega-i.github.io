@@ -38,7 +38,7 @@ export async function makeEye(canvas, signal, cfg, tracking = false) {
   const racks=cfg.racks.map(([,x,y,hx,hy])=>new THREE.Box3(new THREE.Vector3(x-hx-.12,y-hy-.12,0),new THREE.Vector3(x+hx+.12,y+hy+.12,1.92)));
   let width = 0,
     height = 0;
-  let azimuth = 0;
+  let azimuth = tracking ? .73 : 0, elevation = 0, zoom = tracking ? 1.10 : 1;
   function draw(s,angle,overlay=true) {
     const w = canvas.clientWidth,
       h = canvas.clientHeight;
@@ -69,7 +69,10 @@ export async function makeEye(canvas, signal, cfg, tracking = false) {
       }
       target.set(s.xy[0],s.xy[1],targetHeight);
       if(angle==="poster")offset.set(3.1,1.75,.67);
-      else offset.copy(initialOffset).applyAxisAngle(vertical,s.yaw + azimuth);
+      else {
+        offset.copy(initialOffset).applyAxisAngle(vertical,s.yaw + azimuth).multiplyScalar(zoom);
+        offset.z += elevation * zoom;
+      }
       for(let lift=0;lift<14;lift++){
         ray.set(target,offset.clone().normalize());
         if(!racks.some(box=>{const hit=ray.intersectBox(box,new THREE.Vector3());return hit&&hit.distanceTo(target)<offset.length();}))break;
@@ -88,7 +91,11 @@ export async function makeEye(canvas, signal, cfg, tracking = false) {
   }
   return {
     draw,
-    orbit(delta) { azimuth += delta; },
+    orbit(horizontal, vertical = 0) {
+      azimuth += horizontal;
+      elevation = THREE.MathUtils.clamp(elevation + vertical,-.6,3);
+    },
+    zoomBy(factor) { zoom = THREE.MathUtils.clamp(zoom * factor,.60,2.2); },
     pickLink(clientX,clientY) {
       const bounds = canvas.getBoundingClientRect();
       const pointer = new THREE.Vector2(2*(clientX-bounds.left)/bounds.width-1,1-2*(clientY-bounds.top)/bounds.height);

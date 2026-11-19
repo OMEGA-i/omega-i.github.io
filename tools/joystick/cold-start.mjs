@@ -2,11 +2,11 @@
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
 import {writeFileSync} from 'node:fs';
-const [origin,output]=process.argv.slice(2);
+const [origin,output,delivery]=process.argv.slice(2);
 const browser=await chromium.launch({channel:'chrome'});
 try {
   const page=await browser.newPage({viewport:{width:1280,height:800}});
-  await page.goto(new URL('/en/projects/joystick/',origin).href);
+  await page.goto(new URL('/en/projects/joystick/'+(delivery?'?delivery='+delivery:''),origin).href);
   const studio=page.locator('[data-joystick]');
   const manifest=await studio.getAttribute('data-model');
   assert.match(manifest,/joystick-mixed-v1/);
@@ -40,6 +40,7 @@ try {
   await studio.locator('[data-vx]').fill('.8');await studio.locator('[data-vy]').fill('.25');
   const warm=performance.now();await studio.locator('[data-run]').click();
   await page.waitForFunction(()=>document.querySelector('[data-joystick] [data-status]').textContent.includes('Generated motion reference · 0.8 / 0.25'));
-  const result={origin,status,browser:browser.version(),coldSeconds,warmSeconds:(performance.now()-warm)/1000,timings,assets};
+  const phases=await page.evaluate(()=>window.__joystickTimings);
+  const result={origin,status,phases,browser:browser.version(),coldSeconds,warmSeconds:(performance.now()-warm)/1000,timings,assets};
   writeFileSync(output,JSON.stringify(result,null,2));console.log(status,result.coldSeconds,result.warmSeconds);
 } finally {await browser.close();}
